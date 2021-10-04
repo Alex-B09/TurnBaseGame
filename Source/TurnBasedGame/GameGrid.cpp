@@ -8,7 +8,6 @@ AGameGrid::AGameGrid()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 // Called when the game starts or when spawned
@@ -21,6 +20,7 @@ void AGameGrid::BeginPlay()
 
 	for (auto component : components)
 	{
+		// if the component is an instance of the selected class
 		if (component->GetChildActor()->IsA(mSquareActorClass->GetDefaultObject()->StaticClass()))
 		{
 			mSquares.Add(Cast<AGridSquare>(component->GetChildActor()));
