@@ -13,7 +13,7 @@ AGridSquare::AGridSquare()
 	RootComponent = mScenePosition;
 
 	mCharacterPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Character Position"));
-	RootComponent->SetupAttachment(RootComponent);
+	mCharacterPosition->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

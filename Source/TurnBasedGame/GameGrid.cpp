@@ -16,4 +16,14 @@ void AGameGrid::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	TArray<UChildActorComponent*> components;
+	GetComponents<UChildActorComponent>(components);
+
+	for (auto component : components)
+	{
+		if (component->GetChildActor()->IsA(mSquareActorClass->GetDefaultObject()->StaticClass()))
+		{
+			mSquares.Add(Cast<AGridSquare>(component->GetChildActor()));
+		}
+	}
 }
