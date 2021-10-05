@@ -42,7 +42,7 @@ protected:
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
-		void OnWatchTile(AGridSquare* toWatch);
+		void OnWatchTile(AGridTile* toWatch);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnMovementError();

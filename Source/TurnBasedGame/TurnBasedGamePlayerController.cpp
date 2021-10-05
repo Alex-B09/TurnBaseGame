@@ -128,9 +128,12 @@ void ATurnBasedGamePlayerController::OnAction()
 
 void ATurnBasedGamePlayerController::WatchCurrentTile()
 {
+	// TODO get old tile too....
 	if (auto tile = mGrid->GetTile(mCurrentX, mCurrentY))
 	{
 		UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
+
+		tile->Selected(true);
 		OnWatchTile(tile);
 	}
 	else

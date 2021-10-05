@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "GridSquare.h"
+#include "GridTile.h"
 
 #include "GameGrid.generated.h"
 
@@ -21,10 +21,10 @@ private:
 		int mNbDepth; // y
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
-		TArray<AGridSquare*> mTiles;
+		TArray<AGridTile*> mTiles;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
-		TSoftClassPtr<class AGridSquare> mSquareActorClass;
+		TSoftClassPtr<class AGridTile> mSquareActorClass;
 
 
 public:	
@@ -32,7 +32,7 @@ public:
 	AGameGrid();
 
 	//UFUNCTION(BlueprintCallable, BlueprintGetter, BlueprintPure, Category = "GameplayLogic")
-		AGridSquare* GetTile(int x, int y);
+		AGridTile* GetTile(int x, int y);
 
 
 	int GetWidth() const { return mNbWidth; }

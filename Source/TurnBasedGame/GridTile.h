@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SceneComponent.h"
-#include "GridSquare.generated.h"
+#include "GridTile.generated.h"
 
 UCLASS()
-class TURNBASEDGAME_API AGridSquare : public AActor
+class TURNBASEDGAME_API AGridTile : public AActor
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ private:
 
 public:	
 	// Sets default values for this actor's properties
-	AGridSquare();
+	AGridTile();
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,10 +38,16 @@ public:
 		void LightForMovement() {};
 
 
+	void Selected(bool isSelected);
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void BP_LightForSpell();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void BP_LightForMovement();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnSelection(bool isSelected);
+
 };
