@@ -16,12 +16,12 @@ class TURNBASEDGAME_API AGameGrid : public AActor
 
 private:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareWidth"))
-		int mNbWidth;
+		int mNbWidth; // x
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
-		int mNbDepth;
+		int mNbDepth; // y
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
-		TArray<AGridSquare*> mSquares;
+		TArray<AGridSquare*> mTiles;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
 		TSoftClassPtr<class AGridSquare> mSquareActorClass;
@@ -30,6 +30,13 @@ private:
 public:	
 	// Sets default values for this actor's properties
 	AGameGrid();
+
+	//UFUNCTION(BlueprintCallable, BlueprintGetter, BlueprintPure, Category = "GameplayLogic")
+		AGridSquare* GetTile(int x, int y);
+
+
+	int GetWidth() const { return mNbWidth; }
+	int GetDepth() const { return mNbDepth; }
 
 protected:
 	// Called when the game starts or when spawned

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
+#include "GameGrid.h"
+
 #include "TurnBasedGamePlayerController.generated.h"
 
 UCLASS()
@@ -11,25 +14,40 @@ class ATurnBasedGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+
+private:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Grid"))
+		AGameGrid* mGrid;
+
+	int mCurrentX = 0;
+	int mCurrentY = 0;
+
 public:
 	ATurnBasedGamePlayerController();
 
-protected:
-	/** True if the controlled character should navigate to the mouse cursor. */
-	uint32 bMoveToMouseCursor : 1;
 
+protected:
 	// Begin PlayerController interface
+	virtual void BeginPlay() override;
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
-	// End PlayerController interface
 
-	/** Navigate player to the current mouse cursor location. */
-	void MoveToMouseCursor();
 
-	/** Navigate player to the given world location. */
-	void SetNewMoveDestination(const FVector DestLocation);
+	// inputs mapping
+	void OnMoveUp();
+	void OnMoveDown();
+	void OnMoveRight();
+	void OnMoveLeft();
+	void OnAction();
 
-	/** Input handlers for SetDestination action. */
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+		void OnWatchTile(AGridSquare* toWatch);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnMovementError();
+
+private:
+	void WatchCurrentTile();
+
 };

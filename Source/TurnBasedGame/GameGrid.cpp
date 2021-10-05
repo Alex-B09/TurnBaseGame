@@ -23,7 +23,18 @@ void AGameGrid::BeginPlay()
 		// if the component is an instance of the selected class
 		if (component->GetChildActor()->IsA(mSquareActorClass->GetDefaultObject()->StaticClass()))
 		{
-			mSquares.Add(Cast<AGridSquare>(component->GetChildActor()));
+			mTiles.Add(Cast<AGridSquare>(component->GetChildActor()));
 		}
 	}
+}
+
+
+AGridSquare* AGameGrid::GetTile(int x, int y)
+{
+	if (x >= 0 && x < mNbWidth
+		&& y >= 0 && y < mNbDepth)
+	{
+		return mTiles[x * mNbDepth + y];
+	}
+	return nullptr;
 }

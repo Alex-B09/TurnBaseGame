@@ -6,6 +6,10 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TurnBasedGameCharacter.h"
 #include "Engine/World.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+
+#include <string>
+
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
 {
@@ -13,15 +17,32 @@ ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
+void ATurnBasedGamePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// get the grid
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameGrid::StaticClass(), foundActors);
+
+	if (foundActors.Num() > 0)
+	{
+		if (auto grid = Cast<AGameGrid>(foundActors[0]))
+		{
+			mGrid = grid;
+			OnWatchTile(mGrid->GetTile(0, 0));
+		}
+		else
+		{
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::BeginPlay - invalid grid"));
+		}
+	}
+}
+
 void ATurnBasedGamePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	// keep updating the destination every tick while desired
-	if (bMoveToMouseCursor)
-	{
-		MoveToMouseCursor();
-	}
 }
 
 void ATurnBasedGamePlayerController::SetupInputComponent()
@@ -29,59 +50,106 @@ void ATurnBasedGamePlayerController::SetupInputComponent()
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATurnBasedGamePlayerController::OnSetDestinationPressed);
-	InputComponent->BindAction("SetDestination", IE_Released, this, &ATurnBasedGamePlayerController::OnSetDestinationReleased);
+	InputComponent->BindAction("MoveUp", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveUp);
+	InputComponent->BindAction("MoveDown", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveDown);
+	InputComponent->BindAction("MoveRight", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveRight);
+	InputComponent->BindAction("MoveLeft", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveLeft);
+	InputComponent->BindAction("Action", IE_Pressed, this, &ATurnBasedGamePlayerController::OnAction);
 }
 
-void ATurnBasedGamePlayerController::MoveToMouseCursor()
+void ATurnBasedGamePlayerController::OnMoveUp()
 {
-	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
+    UE_LOG(LogTemp, Log, TEXT("Move up"));
+
+	int width = mGrid->GetDepth();
+
+	if (mCurrentY + 1 < width)
 	{
-		if (ATurnBasedGameCharacter* MyPawn = Cast<ATurnBasedGameCharacter>(GetPawn()))
-		{
-			if (MyPawn->GetCursorToWorld())
-			{
-				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, MyPawn->GetCursorToWorld()->GetComponentLocation());
-			}
-		}
+		mCurrentY += 1;
+		WatchCurrentTile();
 	}
 	else
 	{
-		// Trace to see what is under the mouse cursor
-		FHitResult Hit;
-		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-		if (Hit.bBlockingHit)
-		{
-			// We hit something, move there
-			SetNewMoveDestination(Hit.ImpactPoint);
-		}
+		OnMovementError();
 	}
 }
 
-void ATurnBasedGamePlayerController::SetNewMoveDestination(const FVector DestLocation)
+void ATurnBasedGamePlayerController::OnMoveDown()
 {
-	APawn* const MyPawn = GetPawn();
-	if (MyPawn)
+	UE_LOG(LogTemp, Log, TEXT("Move down"));
+
+	if (mCurrentY - 1 >= 0)
 	{
-		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
-
-		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if ((Distance > 120.0f))
-		{
-			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
-		}
+		mCurrentY -= 1;
+		WatchCurrentTile();
+	}
+	else
+	{
+		OnMovementError();
 	}
 }
 
-void ATurnBasedGamePlayerController::OnSetDestinationPressed()
+void ATurnBasedGamePlayerController::OnMoveLeft()
 {
-	// set flag to keep updating destination until released
-	bMoveToMouseCursor = true;
+	UE_LOG(LogTemp, Log, TEXT("Move left"));
+
+	if (mCurrentX - 1 >= 0)
+	{
+		mCurrentX -= 1;
+		WatchCurrentTile();
+	}
+	else
+	{
+		OnMovementError();
+	}
 }
 
-void ATurnBasedGamePlayerController::OnSetDestinationReleased()
+void ATurnBasedGamePlayerController::OnMoveRight()
 {
-	// clear flag to indicate we should stop updating the destination
-	bMoveToMouseCursor = false;
+	UE_LOG(LogTemp, Log, TEXT("Move Right"));
+
+	int depth = mGrid->GetWidth();
+
+	if (mCurrentX +1 < depth)
+	{
+		mCurrentX += 1;
+		WatchCurrentTile();
+	}
+	else
+	{
+		OnMovementError();
+	}
 }
+
+void ATurnBasedGamePlayerController::OnAction()
+{
+	UE_LOG(LogTemp, Log, TEXT("Action"));
+}
+
+void ATurnBasedGamePlayerController::WatchCurrentTile()
+{
+	if (auto tile = mGrid->GetTile(mCurrentX, mCurrentY))
+	{
+		UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
+		OnWatchTile(tile);
+	}
+	else
+	{
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - invalid tile"));
+	}
+}
+
+//void ATurnBasedGamePlayerController::SetNewMoveDestination(const FVector DestLocation)
+//{
+//	APawn* const MyPawn = GetPawn();
+//	if (MyPawn)
+//	{
+//		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
+//
+//		// We need to issue move command only if far enough in order for walk animation to play correctly
+//		if ((Distance > 50.0f))
+//		{
+//			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
+//		}
+//	}
+//}
