@@ -38,3 +38,25 @@ AGridTile* AGameGrid::GetTile(int x, int y)
 	}
 	return nullptr;
 }
+
+bool AGameGrid::SelectTile(AGridTile* tile)
+{
+	if (tile)
+	{
+		tile->Selected(true);
+
+		if (mSelectedTile)
+		{
+			mSelectedTile->Selected(false);
+		}
+		mSelectedTile = tile;
+		return true;
+	}
+	return false;
+}
+
+bool AGameGrid::SelectTile(int x, int y)
+{
+	return SelectTile(GetTile(x, y));
+}
+

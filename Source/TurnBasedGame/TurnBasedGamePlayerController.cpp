@@ -30,7 +30,7 @@ void ATurnBasedGamePlayerController::BeginPlay()
 		if (auto grid = Cast<AGameGrid>(foundActors[0]))
 		{
 			mGrid = grid;
-			OnWatchTile(mGrid->GetTile(0, 0));
+			WatchCurrentTile();
 		}
 		else
 		{
@@ -129,16 +129,30 @@ void ATurnBasedGamePlayerController::OnAction()
 void ATurnBasedGamePlayerController::WatchCurrentTile()
 {
 	// TODO get old tile too....
-	if (auto tile = mGrid->GetTile(mCurrentX, mCurrentY))
-	{
-		UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
 
-		tile->Selected(true);
-		OnWatchTile(tile);
+	if (mGrid)
+	{
+		if (auto tile = mGrid->GetTile(mCurrentX, mCurrentY))
+		{
+			UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
+
+			if (mGrid->SelectTile(tile)) // should never be false...but...just to be sure
+			{
+				OnWatchTile(tile);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - x:%d y:%d -- error on select tile -- should never happen"), mCurrentX, mCurrentY);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - invalid tile"));
+		}
 	}
 	else
 	{
-        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - invalid tile"));
+		UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - invalid grid"));
 	}
 }
 

@@ -27,12 +27,16 @@ private:
 		TSoftClassPtr<class AGridTile> mSquareActorClass;
 
 
+	AGridTile* mSelectedTile = nullptr;
+
 public:	
 	// Sets default values for this actor's properties
 	AGameGrid();
 
-	//UFUNCTION(BlueprintCallable, BlueprintGetter, BlueprintPure, Category = "GameplayLogic")
-		AGridTile* GetTile(int x, int y);
+	AGridTile* GetTile(int x, int y);
+
+	bool SelectTile(AGridTile* tile);
+	bool SelectTile(int x, int y);
 
 
 	int GetWidth() const { return mNbWidth; }
