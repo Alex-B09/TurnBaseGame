@@ -2,7 +2,6 @@
 
 #include "TurnBasedGameGameMode.h"
 #include "TurnBasedGamePlayerController.h"
-#include "TurnBasedGameCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATurnBasedGameGameMode::ATurnBasedGameGameMode()
@@ -11,9 +10,9 @@ ATurnBasedGameGameMode::ATurnBasedGameGameMode()
 	PlayerControllerClass = ATurnBasedGamePlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
-	if (PlayerPawnBPClass.Class != nullptr)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
+	//if (PlayerPawnBPClass.Class != nullptr)
+	//{
+	//	DefaultPawnClass = PlayerPawnBPClass.Class;
+	//}
 }

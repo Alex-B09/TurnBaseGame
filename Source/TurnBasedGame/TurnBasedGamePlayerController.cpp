@@ -4,7 +4,6 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "TurnBasedGameCharacter.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
