@@ -40,6 +40,11 @@ public:
 
 	void Selected(bool isSelected);
 
+	FTransform GetCharacterPosition() const
+	{
+		return mCharacterPosition->GetComponentTransform();
+	}
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void BP_LightForSpell();

@@ -8,6 +8,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 #include <string>
+#include <TurnBasedGame/GamplaySubsystem.h>
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
@@ -54,6 +55,7 @@ void ATurnBasedGamePlayerController::SetupInputComponent()
 	InputComponent->BindAction("MoveRight", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveRight);
 	InputComponent->BindAction("MoveLeft", IE_Pressed, this, &ATurnBasedGamePlayerController::OnMoveLeft);
 	InputComponent->BindAction("Action", IE_Pressed, this, &ATurnBasedGamePlayerController::OnAction);
+	InputComponent->BindAction("Cancel", IE_Pressed, this, &ATurnBasedGamePlayerController::OnCancel);
 }
 
 void ATurnBasedGamePlayerController::OnMoveUp()
@@ -123,6 +125,42 @@ void ATurnBasedGamePlayerController::OnMoveRight()
 void ATurnBasedGamePlayerController::OnAction()
 {
 	UE_LOG(LogTemp, Log, TEXT("Action"));
+
+
+	if (mState == EControllerActionState::Selecting)
+	{
+		auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
+
+		auto tileStatus = gameplaySubsystem->GetTileStatus(GetCurrentTile());
+
+		if (tileStatus == EGridTileState::Empty)
+		{
+            UE_LOG(LogTemp, Log, TEXT("Tile Empty"));
+		}
+		else if (tileStatus == EGridTileState::IsCharacterEnemy)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Tile enemy"));
+		}
+		else if (tileStatus == EGridTileState::IsCharacterPlayer)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Tile character"));
+
+			// in mode selected
+			mState = EControllerActionState::Selected;
+			UE_LOG(LogTemp, Log, TEXT("Selected"));
+		}
+	}
+}
+
+void ATurnBasedGamePlayerController::OnCancel()
+{
+	UE_LOG(LogTemp, Log, TEXT("Cancel"));
+
+	if (mState == EControllerActionState::Selected)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Reverting to selecting"));
+		mState = EControllerActionState::Selecting;
+	}
 }
 
 void ATurnBasedGamePlayerController::WatchCurrentTile()
@@ -131,7 +169,7 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 
 	if (mGrid)
 	{
-		if (auto tile = mGrid->GetTile(mCurrentX, mCurrentY))
+		if (auto tile = GetCurrentTile())
 		{
 			UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
 
@@ -153,6 +191,11 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 	{
 		UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - invalid grid"));
 	}
+}
+
+AGridTile* ATurnBasedGamePlayerController::GetCurrentTile() const
+{
+	return mGrid->GetTile(mCurrentX, mCurrentY);
 }
 
 //void ATurnBasedGamePlayerController::SetNewMoveDestination(const FVector DestLocation)

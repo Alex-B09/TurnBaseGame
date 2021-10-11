@@ -2,6 +2,7 @@
 
 
 #include "GameGrid.h"
+#include <TurnBasedGame/GamplaySubsystem.h>
 
 // Sets default values
 AGameGrid::AGameGrid()
@@ -26,6 +27,27 @@ void AGameGrid::BeginPlay()
 			mTiles.Add(Cast<AGridTile>(component->GetChildActor()));
 		}
 	}
+
+	auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
+	if (gameplaySubsystem == nullptr)
+	{
+		UE_LOG(LogTemp,Log,TEXT("AGameGrid::BeginPlay -- invalid gameplaySubsystem"));
+		return;
+	}
+
+	for (auto &character : mCharacters)
+	{
+		if (auto tile = GetTile(character.mPosX, character.mPosY))
+		{
+			gameplaySubsystem->AddCharacter(character.mCharacter, tile, character.mIsPlayerControlled);
+		}
+		else
+		{
+            UE_LOG(LogTemp, Log, TEXT("AGameGrid::BeginPlay -- error on character placement"));
+		}
+	}
+
+
 }
 
 

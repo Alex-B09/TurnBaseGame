@@ -6,8 +6,25 @@
 #include "GameFramework/Actor.h"
 
 #include "GridTile.h"
-
+#include "GameCharacter.h"
 #include "GameGrid.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FStartinPosition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "X"))
+		int mPosX; // x
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Y"))
+		int mPosY; // y
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "IsPlayerControlled"))
+		bool mIsPlayerControlled; // y
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "GameCharacters"))
+		TSubclassOf<AGameCharacter> mCharacter;
+};
+
 
 UCLASS()
 class TURNBASEDGAME_API AGameGrid : public AActor
@@ -24,10 +41,14 @@ private:
 		TArray<AGridTile*> mTiles;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
-		TSoftClassPtr<class AGridTile> mSquareActorClass;
-
+		TSubclassOf<class AGridTile> mSquareActorClass;
 
 	AGridTile* mSelectedTile = nullptr;
+
+
+	// Character and position
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Characters"))
+		TArray<FStartinPosition> mCharacters;
 
 public:	
 	// Sets default values for this actor's properties

@@ -9,6 +9,13 @@
 
 #include "TurnBasedGamePlayerController.generated.h"
 
+UENUM()
+enum class EControllerActionState : uint8
+{
+	Selecting,
+	Selected
+};
+
 UCLASS()
 class ATurnBasedGamePlayerController : public APlayerController
 {
@@ -18,6 +25,9 @@ class ATurnBasedGamePlayerController : public APlayerController
 private:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Grid"))
 		AGameGrid* mGrid;
+
+	UPROPERTY()
+		EControllerActionState mState = EControllerActionState::Selecting;
 
 	int mCurrentX = 0;
 	int mCurrentY = 0;
@@ -39,6 +49,7 @@ protected:
 	void OnMoveRight();
 	void OnMoveLeft();
 	void OnAction();
+	void OnCancel();
 
 protected:
     UFUNCTION(BlueprintImplementableEvent)
@@ -49,5 +60,6 @@ protected:
 
 private:
 	void WatchCurrentTile();
+	AGridTile* GetCurrentTile() const;
 
 };

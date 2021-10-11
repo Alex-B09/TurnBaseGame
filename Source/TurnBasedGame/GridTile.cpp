@@ -3,6 +3,7 @@
 
 #include "GridTile.h"
 
+
 // Sets default values
 AGridTile::AGridTile()
 {
@@ -20,6 +21,8 @@ AGridTile::AGridTile()
 void AGridTile::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	
 	
 }
 
