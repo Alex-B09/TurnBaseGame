@@ -125,12 +125,10 @@ void ATurnBasedGamePlayerController::OnMoveRight()
 void ATurnBasedGamePlayerController::OnAction()
 {
 	UE_LOG(LogTemp, Log, TEXT("Action"));
-
+	auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
 
 	if (mState == EControllerActionState::Selecting)
 	{
-		auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
-
 		auto tileStatus = gameplaySubsystem->GetTileStatus(GetCurrentTile());
 
 		if (tileStatus == EGridTileState::Empty)
@@ -147,7 +145,29 @@ void ATurnBasedGamePlayerController::OnAction()
 
 			// in mode selected
 			mState = EControllerActionState::Selected;
+
+			if (auto character = gameplaySubsystem->GetCharacter(GetCurrentTile()))
+			{
+				mSelectedCharacter = character;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - invalid character returned"));
+			}
+			
+
 			UE_LOG(LogTemp, Log, TEXT("Selected"));
+		}
+	}
+	else if (mState == EControllerActionState::Selected)
+	{
+		auto tileStatus = gameplaySubsystem->GetTileStatus(GetCurrentTile());
+
+		// if unocupied tile
+		if (tileStatus == EGridTileState::Empty)
+		{
+			// move character
+			gameplaySubsystem->MoveCharacter(mSelectedCharacter, GetCurrentTile());
 		}
 	}
 }
@@ -171,7 +191,7 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 	{
 		if (auto tile = GetCurrentTile())
 		{
-			UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
+			//UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
 
 			if (mGrid->SelectTile(tile)) // should never be false...but...just to be sure
 			{

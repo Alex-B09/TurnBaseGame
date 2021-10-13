@@ -51,13 +51,20 @@ private:
 	UPROPERTY()
 		AGameGrid* mGrid;
 
+	//UPROPERTY()
+	//	TArray<AGameCharacter> mPlayerCharacters;
+	//UPROPERTY()
+	//	TArray<AGameCharacter> mEnemyCharacters;
+
 public:
 	void SetupGrid(AGameGrid* grid);
 	void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
+	void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
 
 	EGridTileState GetTileStatus(AGridTile* tile) const;
-
+	AGameCharacter* GetCharacter(AGridTile* tile) const;
 
 private:
-	UCharacterGridInfo* GetGridInfo(AGridTile * tile) const;
+	UCharacterGridInfo* GetGridInfo(AGridTile* tile) const;
+	UCharacterGridInfo* GetGridInfo(AGameCharacter * character) const;
 };

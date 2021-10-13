@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GridTile.h"
 #include "GameCharacter.generated.h"
 
 UCLASS()
@@ -24,9 +25,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void Move(AGridTile* currentTile, const TArray<AGridTile*> & tilesToGo);
 
 
 	// attack

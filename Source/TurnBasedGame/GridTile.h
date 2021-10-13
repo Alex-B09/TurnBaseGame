@@ -7,7 +7,7 @@
 #include "Components/SceneComponent.h"
 #include "GridTile.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class TURNBASEDGAME_API AGridTile : public AActor
 {
 	GENERATED_BODY()
@@ -40,6 +40,7 @@ public:
 
 	void Selected(bool isSelected);
 
+    UFUNCTION(BlueprintCallable)
 	FTransform GetCharacterPosition() const
 	{
 		return mCharacterPosition->GetComponentTransform();

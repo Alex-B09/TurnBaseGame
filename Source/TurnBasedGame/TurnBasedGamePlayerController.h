@@ -29,8 +29,14 @@ private:
 	UPROPERTY()
 		EControllerActionState mState = EControllerActionState::Selecting;
 
-	int mCurrentX = 0;
-	int mCurrentY = 0;
+	UPROPERTY()
+		AGameCharacter* mSelectedCharacter;
+
+	UPROPERTY()
+		int mCurrentX = 0;
+	UPROPERTY()
+		int mCurrentY = 0;
+
 
 public:
 	ATurnBasedGamePlayerController();

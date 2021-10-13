@@ -2,6 +2,8 @@
 
 
 #include "GamplaySubsystem.h"
+#include <Runtime/AIModule/Classes/AIController.h>
+#include <Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
 
 void UGamplaySubsystem::SetupGrid(AGameGrid* grid)
 {
@@ -29,6 +31,7 @@ void UGamplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass,
 
 	auto transform = tile->GetCharacterPosition();
 	auto characterActor = Cast<AGameCharacter>(GetWorld()->SpawnActor(characterClass, &transform, FActorSpawnParameters()));
+	characterActor->SpawnDefaultController();
 	auto info = NewObject<UCharacterGridInfo>();
 
 	if (characterActor == nullptr || info == nullptr)
@@ -81,5 +84,81 @@ UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGridTile* tile) const
 		}
 	}
 
+	return nullptr;
+}
+
+UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGameCharacter* character) const
+{
+	if (character == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetGridInfo - invalid character"));
+		return nullptr;
+	}
+
+	for (auto info : mCharacters)
+	{
+		if (info->mCharacter == character)
+		{
+			return info;
+		}
+	}
+
+	return nullptr;
+}
+
+void UGamplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo)
+{
+	UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - moving character"));
+
+	// verify if null
+	if (character == nullptr || tileToMoveTo == nullptr)
+	{
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - invalid input"));
+		return;
+	}
+
+
+	// get info
+	if (auto info = GetGridInfo(character))
+	{
+		//auto controller = Cast<AAIController>(character->GetController());
+		auto transform = tileToMoveTo->GetCharacterPosition();
+		//controller->MoveToLocation(transform.GetLocation());
+		//UAIBlueprintHelperLibrary::SimpleMoveToLocation(character->GetController(), tileToMoveTo->GetCharacterPosition().GetLocation());
+
+		TArray<AGridTile*> positions;
+		positions.Add(tileToMoveTo);
+
+		UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - hum...."));
+		info->mCharacter->Move(info->mTile, positions);
+
+		info->mTile = tileToMoveTo;
+
+		// Get Tile List to go from A to B
+
+		
+	}
+	else
+	{
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - character not found"));
+	}
+}
+
+AGameCharacter* UGamplaySubsystem::GetCharacter(AGridTile* tile) const
+{
+	if (tile == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetCharacter - invalid tile"));
+	}
+
+	for (auto info : mCharacters)
+	{
+		if (info->mTile == tile)
+		{
+			return info->mCharacter;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetCharacter - not found character"));
 	return nullptr;
 }
