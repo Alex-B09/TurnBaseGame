@@ -39,11 +39,11 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
 		TArray<AGridTile*> mTiles;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
 		TSubclassOf<class AGridTile> mSquareActorClass;
-
-	AGridTile* mSelectedTile = nullptr;
+    
+	UPROPERTY()
+		AGridTile* mSelectedTile;
 
 
 	// Character and position
@@ -63,9 +63,15 @@ public:
 	int GetWidth() const { return mNbWidth; }
 	int GetDepth() const { return mNbDepth; }
 
+	void LightForMovement(AGridTile* tile, int nbTile);
+	void HideSelectors();
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 
+private:
+	std::pair<int, int> GetXYPosition(int arrayPos);
 };

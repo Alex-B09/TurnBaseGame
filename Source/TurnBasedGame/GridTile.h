@@ -7,6 +7,15 @@
 #include "Components/SceneComponent.h"
 #include "GridTile.generated.h"
 
+UENUM(BlueprintType)
+enum class ETileState : uint8
+{
+	None,
+	Selected,
+	SelectedForMovement,
+	SelectedForAttack
+};
+
 UCLASS(BlueprintType)
 class TURNBASEDGAME_API AGridTile : public AActor
 {
@@ -31,12 +40,11 @@ public:
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-		void LightForSpell() {};
+	void LightForSpell() {}; // TODO
 
-	UFUNCTION(BlueprintCallable)
-		void LightForMovement() {};
+	void LightForAttack() {}; // TODO
 
+	void LightForMovement();
 
 	void Selected(bool isSelected);
 

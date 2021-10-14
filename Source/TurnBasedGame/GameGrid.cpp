@@ -82,3 +82,38 @@ bool AGameGrid::SelectTile(int x, int y)
 	return SelectTile(GetTile(x, y));
 }
 
+void AGameGrid::LightForMovement(AGridTile* tile, int nbTile)
+{
+	// get tile position
+	int position = mTiles.Find(tile);
+
+	// get x,y position
+	auto [posX, posY] = GetXYPosition(position);
+	
+	for (int index = 0; index < mTiles.Num(); ++index)
+	{
+		auto [x, y] = GetXYPosition(index);
+		int distance = FMath::Abs(x - posX) + FMath::Abs(y - posY);
+		if (distance <= nbTile)
+		{
+			mTiles[index]->LightForMovement();
+		}
+	}
+}
+
+void AGameGrid::HideSelectors()
+{
+	// I dont like that
+	//	this should let the tile decide the kind of selector used base on its own state
+	//	TODO
+
+	for (auto tile : mTiles)
+	{
+		tile->Selected(false); // hacky hack is hacky
+	}
+}
+
+std::pair<int, int> AGameGrid::GetXYPosition(int arrayPos)
+{
+	return std::pair<int, int>(arrayPos / mNbWidth, arrayPos % mNbWidth);
+}

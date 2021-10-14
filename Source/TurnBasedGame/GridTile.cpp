@@ -31,10 +31,8 @@ void AGridTile::Selected(bool isSelected)
 	OnSelection(isSelected);
 }
 
-// Called every frame
-//void AGridTile::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//
-//}
-
+void AGridTile::LightForMovement()
+{
+	// set the state
+	BP_LightForMovement();
+}

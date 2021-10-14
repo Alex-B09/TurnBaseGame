@@ -3,7 +3,6 @@
 #include "TurnBasedGamePlayerController.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
@@ -155,6 +154,7 @@ void ATurnBasedGamePlayerController::OnAction()
 				UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - invalid character returned"));
 			}
 			
+			mGrid->LightForMovement(GetCurrentTile(), 3);
 
 			UE_LOG(LogTemp, Log, TEXT("Selected"));
 		}
@@ -168,6 +168,8 @@ void ATurnBasedGamePlayerController::OnAction()
 		{
 			// move character
 			gameplaySubsystem->MoveCharacter(mSelectedCharacter, GetCurrentTile());
+			
+			mGrid->HideSelectors();
 		}
 	}
 }
@@ -181,6 +183,9 @@ void ATurnBasedGamePlayerController::OnCancel()
 		UE_LOG(LogTemp, Log, TEXT("Reverting to selecting"));
 		mState = EControllerActionState::Selecting;
 	}
+
+	// hide movement
+	mGrid->HideSelectors();
 }
 
 void ATurnBasedGamePlayerController::WatchCurrentTile()

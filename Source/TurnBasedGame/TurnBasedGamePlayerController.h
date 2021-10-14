@@ -6,14 +6,15 @@
 #include "GameFramework/PlayerController.h"
 
 #include "GameGrid.h"
-
 #include "TurnBasedGamePlayerController.generated.h"
 
 UENUM()
 enum class EControllerActionState : uint8
 {
 	Selecting,
-	Selected
+	Selected,
+	Moving,
+	Attacking
 };
 
 UCLASS()
@@ -32,10 +33,14 @@ private:
 	UPROPERTY()
 		AGameCharacter* mSelectedCharacter;
 
+	// technicaly, i dont need the uproperty here...but i had so many problems in the past...
+	//	i'm not taking any chances
 	UPROPERTY()
 		int mCurrentX = 0;
 	UPROPERTY()
 		int mCurrentY = 0;
+
+
 
 
 public:
