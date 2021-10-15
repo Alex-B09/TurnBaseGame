@@ -65,11 +65,11 @@ bool AGameGrid::SelectTile(AGridTile* tile)
 {
 	if (tile)
 	{
-		tile->Selected(true);
+		tile->SetToSelection();
 
 		if (mSelectedTile)
 		{
-			mSelectedTile->Selected(false);
+			mSelectedTile->RemoveLastState();
 		}
 		mSelectedTile = tile;
 		return true;
@@ -96,20 +96,16 @@ void AGameGrid::LightForMovement(AGridTile* tile, int nbTile)
 		int distance = FMath::Abs(x - posX) + FMath::Abs(y - posY);
 		if (distance <= nbTile)
 		{
-			mTiles[index]->LightForMovement();
+			mTiles[index]->SetToMovement();
 		}
 	}
 }
 
 void AGameGrid::HideSelectors()
 {
-	// I dont like that
-	//	this should let the tile decide the kind of selector used base on its own state
-	//	TODO
-
 	for (auto tile : mTiles)
 	{
-		tile->Selected(false); // hacky hack is hacky
+		tile->RemoveLastState();
 	}
 }
 

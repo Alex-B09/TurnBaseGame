@@ -121,22 +121,13 @@ void UGamplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tile
 	// get info
 	if (auto info = GetGridInfo(character))
 	{
-		//auto controller = Cast<AAIController>(character->GetController());
-		auto transform = tileToMoveTo->GetCharacterPosition();
-		//controller->MoveToLocation(transform.GetLocation());
-		//UAIBlueprintHelperLibrary::SimpleMoveToLocation(character->GetController(), tileToMoveTo->GetCharacterPosition().GetLocation());
-
-		TArray<AGridTile*> positions;
+		TArray<AGridTile*> positions; // TODO - get the path (tile by tile) to the destination
 		positions.Add(tileToMoveTo);
 
 		UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - hum...."));
 		info->mCharacter->Move(info->mTile, positions);
 
 		info->mTile = tileToMoveTo;
-
-		// Get Tile List to go from A to B
-
-		
 	}
 	else
 	{

@@ -41,7 +41,6 @@ void ATurnBasedGamePlayerController::BeginPlay()
 void ATurnBasedGamePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-
 }
 
 void ATurnBasedGamePlayerController::SetupInputComponent()
@@ -126,9 +125,10 @@ void ATurnBasedGamePlayerController::OnAction()
 	UE_LOG(LogTemp, Log, TEXT("Action"));
 	auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
 
+	auto tile = GetCurrentTile();
 	if (mState == EControllerActionState::Selecting)
 	{
-		auto tileStatus = gameplaySubsystem->GetTileStatus(GetCurrentTile());
+		auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
 
 		if (tileStatus == EGridTileState::Empty)
 		{
@@ -145,31 +145,32 @@ void ATurnBasedGamePlayerController::OnAction()
 			// in mode selected
 			mState = EControllerActionState::Selected;
 
-			if (auto character = gameplaySubsystem->GetCharacter(GetCurrentTile()))
+			if (auto character = gameplaySubsystem->GetCharacter(tile))
 			{
 				mSelectedCharacter = character;
+				tile->SetToCharacterSelected();
 			}
 			else
 			{
 				UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - invalid character returned"));
 			}
 			
-			mGrid->LightForMovement(GetCurrentTile(), 3);
+			mGrid->LightForMovement(GetCurrentTile(), 3); // the number must come from a character stats at some point
 
 			UE_LOG(LogTemp, Log, TEXT("Selected"));
 		}
 	}
 	else if (mState == EControllerActionState::Selected)
 	{
-		auto tileStatus = gameplaySubsystem->GetTileStatus(GetCurrentTile());
+		auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
 
 		// if unocupied tile
 		if (tileStatus == EGridTileState::Empty)
 		{
 			// move character
-			gameplaySubsystem->MoveCharacter(mSelectedCharacter, GetCurrentTile());
-			
 			mGrid->HideSelectors();
+			gameplaySubsystem->MoveCharacter(mSelectedCharacter, tile);
+			tile->SetToCharacterSelected();
 		}
 	}
 }

@@ -21,18 +21,68 @@ AGridTile::AGridTile()
 void AGridTile::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	
-	
 }
 
-void AGridTile::Selected(bool isSelected)
+void AGridTile::SetToSelection()
 {
-	OnSelection(isSelected);
+	if (mStates.Num() > 0)
+	{
+		if (mStates.Last() == ETileState::SelectedCharacter)
+		{
+			return; // dont do anything if it is the character tile
+		}
+	}
+	mStates.Add(ETileState::Selected);
+	BP_UpdateState();
 }
 
-void AGridTile::LightForMovement()
+void AGridTile::SetToMovement()
 {
-	// set the state
-	BP_LightForMovement();
+	mStates.Add(ETileState::SelectedForMovement);
+	BP_UpdateState();
+}
+
+void AGridTile::SetToSpell()
+{
+	mStates.Add(ETileState::SelectedForMagic);
+	BP_UpdateState();
+}
+
+void AGridTile::SetToCharacterSelected()
+{
+	// this is special
+	RemoveAllState();
+	mStates.Add(ETileState::SelectedCharacter);
+	BP_UpdateState();
+}
+
+void AGridTile::SetToAttack()
+{
+	mStates.Add(ETileState::SelectedForAttack);
+	BP_UpdateState();
+}
+
+void AGridTile::RemoveLastState()
+{
+	if (mStates.Num() > 0)
+	{
+		mStates.Pop(); // dont care about the result
+	}
+
+	BP_UpdateState();
+}
+
+void AGridTile::RemoveAllState()
+{
+	mStates.Empty();
+	BP_UpdateState();
+}
+
+ETileState AGridTile::GetState() const
+{
+	if (mStates.Num() > 0)
+	{
+		return mStates.Last();
+	}
+	return ETileState::None;
 }

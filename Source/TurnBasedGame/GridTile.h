@@ -12,8 +12,10 @@ enum class ETileState : uint8
 {
 	None,
 	Selected,
+	SelectedCharacter,
 	SelectedForMovement,
-	SelectedForAttack
+	SelectedForAttack,
+	SelectedForMagic
 };
 
 UCLASS(BlueprintType)
@@ -28,6 +30,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "GameplayLogic", meta = (DisplayName = "CharacterPosition"))
 		USceneComponent* mCharacterPosition;
 
+    UPROPERTY()
+		TArray<ETileState> mStates;
+
 public:	
 	// Sets default values for this actor's properties
 	AGridTile();
@@ -40,13 +45,14 @@ public:
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
 
-	void LightForSpell() {}; // TODO
+	void SetToSpell();
+	void SetToAttack();
+	void SetToMovement();
+	void SetToSelection();
+	void SetToCharacterSelected();
 
-	void LightForAttack() {}; // TODO
-
-	void LightForMovement();
-
-	void Selected(bool isSelected);
+	void RemoveLastState();
+	void RemoveAllState();
 
     UFUNCTION(BlueprintCallable)
 	FTransform GetCharacterPosition() const
@@ -54,14 +60,10 @@ public:
 		return mCharacterPosition->GetComponentTransform();
 	}
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		ETileState GetState() const;
+	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-		void BP_LightForSpell();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void BP_LightForMovement();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnSelection(bool isSelected);
-
+		void BP_UpdateState();
 };
