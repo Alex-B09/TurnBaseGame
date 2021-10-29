@@ -153,3 +153,32 @@ AGameCharacter* UGamplaySubsystem::GetCharacter(AGridTile* tile) const
 	UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetCharacter - not found character"));
 	return nullptr;
 }
+
+AGridTile* UGamplaySubsystem::GetTile(AGameCharacter* character) const
+{
+	if (!character)
+	{
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetTile - invalid input"));
+		return nullptr;
+	}
+
+	for (auto info : mCharacters)
+	{
+		if (info->mCharacter == character)
+		{
+			return info->mTile;
+		}
+	}
+	return nullptr;
+}
+
+
+void UGamplaySubsystem::HighlighGridForCharacter(AGameCharacter* character) const
+{
+    mGrid->LightForMovement(GetTile(character), 3);
+}
+
+void UGamplaySubsystem::HideGridHighlight() const
+{
+    mGrid->HideSelectors();
+}

@@ -5,16 +5,24 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GridTile.h"
+#include "Abilities/GameplayAbility.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "GameCharacter.generated.h"
 
 UCLASS()
-class TURNBASEDGAME_API AGameCharacter : public ACharacter
+class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 
-private:
-	// grid position
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+		UAbilitySystemComponent* mAbilitySystem;
+	
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+		TSubclassOf<UGameplayAbility> mMovementAbility;
+
 
 
 public:
@@ -32,6 +40,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void Move(AGridTile* currentTile, const TArray<AGridTile*> & tilesToGo);
 
+    UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	// attack
 

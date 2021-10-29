@@ -15,6 +15,9 @@ AGameGrid::AGameGrid()
 void AGameGrid::BeginPlay()
 {
 	Super::BeginPlay();
+
+    GetWorld()->GetSubsystem<UGamplaySubsystem>()->SetupGrid(this);
+
 	
 	TArray<UChildActorComponent*> components;
 	GetComponents<UChildActorComponent>(components);
@@ -85,6 +88,9 @@ bool AGameGrid::SelectTile(int x, int y)
 void AGameGrid::LightForMovement(AGridTile* tile, int nbTile)
 {
 	// get tile position
+
+    auto asdf = mTiles.Num();
+
 	int position = mTiles.Find(tile);
 
 	// get x,y position

@@ -9,6 +9,16 @@
 #include "GameCharacter.h"
 #include "GameGrid.generated.h"
 
+USTRUCT()
+struct FGridPosition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(meta = (DisplayName = "X"))
+        int mPosX;
+    UPROPERTY(meta = (DisplayName = "Y"))
+        int mPosY;
+};
 
 USTRUCT(BlueprintType)
 struct FStartinPosition
@@ -20,7 +30,7 @@ struct FStartinPosition
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Y"))
 		int mPosY; // y
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "IsPlayerControlled"))
-		bool mIsPlayerControlled; // y
+		bool mIsPlayerControlled;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "GameCharacters"))
 		TSubclassOf<AGameCharacter> mCharacter;
 };
@@ -40,7 +50,7 @@ private:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
 		TArray<AGridTile*> mTiles;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
-		TSubclassOf<class AGridTile> mSquareActorClass;
+		TSubclassOf<AGridTile> mSquareActorClass;
     
 	UPROPERTY()
 		AGridTile* mSelectedTile;
