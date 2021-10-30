@@ -7,6 +7,8 @@
 
 #include "GameGrid.h"
 #include "InputWidget.h"
+#include "ControllerStates/ControllerStateBase.h"
+
 #include "TurnBasedGamePlayerController.generated.h"
 
 UENUM()
@@ -51,6 +53,9 @@ private:
 
     UPROPERTY()
         UInputWidget* mWidget;
+
+    UPROPERTY()
+        UControllerStateBase* mControllerState;
 public:
     ATurnBasedGamePlayerController();
 
@@ -68,11 +73,15 @@ public:
         AGameCharacter* GetCharacter() const;
 
 
+    void OnStateTileChanged();
+
 protected:
     // Begin PlayerController interface
     virtual void BeginPlay() override;
     virtual void PlayerTick(float DeltaTime) override;
     virtual void SetupInputComponent() override;
+
+
 
 
     // inputs mapping
@@ -99,5 +108,7 @@ protected:
 private:
     void WatchCurrentTile();
     AGridTile* GetCurrentTile() const;
+
+    void SetupNewState();
 
 };

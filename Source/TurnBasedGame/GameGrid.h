@@ -7,32 +7,23 @@
 
 #include "GridTile.h"
 #include "GameCharacter.h"
+#include "Helpers/GridPosition.h"
+
 #include "GameGrid.generated.h"
 
-USTRUCT()
-struct FGridPosition
-{
-    GENERATED_BODY()
 
-    UPROPERTY(meta = (DisplayName = "X"))
-        int mPosX;
-    UPROPERTY(meta = (DisplayName = "Y"))
-        int mPosY;
-};
 
 USTRUCT(BlueprintType)
 struct FStartinPosition
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "X"))
-		int mPosX; // x
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Y"))
-		int mPosY; // y
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "IsPlayerControlled"))
-		bool mIsPlayerControlled;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "GameCharacters"))
-		TSubclassOf<AGameCharacter> mCharacter;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Starting Position"))
+        FGridPosition mGridPosition;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "IsPlayerControlled"))
+        bool mIsPlayerControlled;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "GameCharacters"))
+        TSubclassOf<AGameCharacter> mCharacter;
 };
 
 
@@ -56,7 +47,7 @@ private:
 		AGridTile* mSelectedTile;
 
 
-	// Character and position
+	// Character and position -- this should be in the game mode
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Characters"))
 		TArray<FStartinPosition> mCharacters;
 

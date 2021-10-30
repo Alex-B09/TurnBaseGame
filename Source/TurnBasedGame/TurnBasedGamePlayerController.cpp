@@ -282,3 +282,29 @@ void ATurnBasedGamePlayerController::SetUIWidget(UInputWidget* widget)
 {
     mWidget = widget;
 }
+
+void ATurnBasedGamePlayerController::SetupNewState()
+{
+    // create the right state
+    // assume it was created?
+    if (!mControllerState)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetupNewState - invalid state"));
+        return;
+    }
+
+    // AddDynamic does not work...maybe it's something releated to events?
+    //  meh...lambda works...
+    mControllerState->OnTileChanged().AddLambda([this]()
+                                                {
+                                                    OnStateTileChanged();
+                                                });
+
+
+
+}
+
+void ATurnBasedGamePlayerController::OnStateTileChanged()
+{
+
+}

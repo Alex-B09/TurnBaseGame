@@ -40,7 +40,7 @@ void AGameGrid::BeginPlay()
 
 	for (auto &character : mCharacters)
 	{
-		if (auto tile = GetTile(character.mPosX, character.mPosY))
+		if (auto tile = GetTile(character.mGridPosition.mPosX, character.mGridPosition.mPosY))
 		{
 			gameplaySubsystem->AddCharacter(character.mCharacter, tile, character.mIsPlayerControlled);
 		}
