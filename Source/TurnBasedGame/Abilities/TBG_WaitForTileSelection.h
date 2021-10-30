@@ -12,7 +12,7 @@ UENUM(BlueprintType)
 enum class ETileSelection : uint8
 {
     Selected UMETA(DisplayName = "Selected"),
-	Cancel UMETA(DisplayName = "Cancelled")
+    Cancel UMETA(DisplayName = "Cancelled")
 };
 
 
@@ -24,27 +24,27 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWaitTileSelect, class AGridTile*, T
 UCLASS()
 class TURNBASEDGAME_API UTBG_WaitForTileSelection : public UAbilityTask
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	// this shows in the bp
-	UPROPERTY(BlueprintAssignable)
-		FWaitTileSelect OnTileSelect;
+        // this shows in the bp
+        UPROPERTY(BlueprintAssignable)
+        FWaitTileSelect OnTileSelect;
     UPROPERTY(BlueprintAssignable)
         FWaitTileSelect OnCancel;
 
-	UFUNCTION()
-		void OnTileSelected(class AGridTile* Tile);
+    UFUNCTION()
+        void OnTileSelected(class AGridTile* Tile);
     UFUNCTION()
         void OnCancelled();
 
-	// Wait until the ability owner receives damage.
-	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
-		static UTBG_WaitForTileSelection* WaitForTileSlection(UGameplayAbility* OwningAbility, bool TriggerOnce);
+    // Wait until the ability owner receives damage.
+    UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
+        static UTBG_WaitForTileSelection* WaitForTileSlection(UGameplayAbility* OwningAbility, bool TriggerOnce);
 
-	virtual void Activate() override;
+    virtual void Activate() override;
 
 protected:
-	bool TriggerOnce;
+    bool TriggerOnce;
 
-	virtual void OnDestroy(bool AbilityIsEnding) override;
+    virtual void OnDestroy(bool AbilityIsEnding) override;
 };

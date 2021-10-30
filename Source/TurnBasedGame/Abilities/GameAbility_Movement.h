@@ -12,6 +12,6 @@
 UCLASS()
 class TURNBASEDGAME_API UGameAbility_Movement : public UGameAbilityBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 };

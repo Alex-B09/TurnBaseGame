@@ -12,7 +12,7 @@
 UCLASS()
 class TURNBASEDGAME_API UInputWidget : public UUserWidget
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")

@@ -12,6 +12,6 @@
 UCLASS()
 class TURNBASEDGAME_API UCharacterAbilitySet : public UGameplayAbilitySet
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 };

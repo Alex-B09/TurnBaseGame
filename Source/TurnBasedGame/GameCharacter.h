@@ -13,43 +13,43 @@
 UCLASS()
 class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySystemInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
-		UAbilitySystemComponent* mAbilitySystem;
-	
-	
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
-		TSubclassOf<UGameplayAbility> mMovementAbility;
+        UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+        UAbilitySystemComponent* mAbilitySystem;
+
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+        TSubclassOf<UGameplayAbility> mMovementAbility;
 
 
 
 public:
-	// Sets default values for this character's properties
-	AGameCharacter();
+    // Sets default values for this character's properties
+    AGameCharacter();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void Move(AGridTile* currentTile, const TArray<AGridTile*> & tilesToGo);
+    UFUNCTION(BlueprintImplementableEvent)
+        void Move(AGridTile* currentTile, const TArray<AGridTile*>& tilesToGo);
 
     UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	// attack
+    // attack
 
-	// magic
-	
-	// move
+    // magic
 
-	// get stats (hp and whatnot)
+    // move
 
-	// abilities?
+    // get stats (hp and whatnot)
+
+    // abilities?
 
 };

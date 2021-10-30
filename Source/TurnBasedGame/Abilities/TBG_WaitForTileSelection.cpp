@@ -68,4 +68,3 @@ UTBG_WaitForTileSelection* UTBG_WaitForTileSelection::WaitForTileSlection(UGamep
     obj->TriggerOnce = TriggerOnce;
     return obj;
 }
-

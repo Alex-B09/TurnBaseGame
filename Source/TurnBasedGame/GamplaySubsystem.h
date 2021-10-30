@@ -13,26 +13,26 @@
 UENUM()
 enum class EGridTileState : uint8
 {
-	Empty,
-	IsCharacterPlayer,
-	IsCharacterEnemy,
+    Empty,
+    IsCharacterPlayer,
+    IsCharacterEnemy,
 };
 
 UCLASS()
 class UCharacterGridInfo : public UObject
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// acharacter
-	UPROPERTY()
-		AGameCharacter* mCharacter;
+    // acharacter
+    UPROPERTY()
+        AGameCharacter* mCharacter;
 
-	UPROPERTY()
-		AGridTile* mTile;
+    UPROPERTY()
+        AGridTile* mTile;
 
-	UPROPERTY()
-		bool mIsPlayerCharacter;
+    UPROPERTY()
+        bool mIsPlayerCharacter;
 };
 
 
@@ -42,38 +42,38 @@ public:
 UCLASS()
 class TURNBASEDGAME_API UGamplaySubsystem : public UWorldSubsystem
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 private:
-	UPROPERTY()
-		TArray<UCharacterGridInfo*> mCharacters;
+    UPROPERTY()
+        TArray<UCharacterGridInfo*> mCharacters;
 
-	UPROPERTY()
-		AGameGrid* mGrid;
+    UPROPERTY()
+        AGameGrid* mGrid;
 
-	//UPROPERTY()
-	//	TArray<AGameCharacter> mPlayerCharacters;
-	//UPROPERTY()
-	//	TArray<AGameCharacter> mEnemyCharacters;
+    //UPROPERTY()
+    //	TArray<AGameCharacter> mPlayerCharacters;
+    //UPROPERTY()
+    //	TArray<AGameCharacter> mEnemyCharacters;
 
 public:
-	void SetupGrid(AGameGrid* grid);
-	void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
-	
+    void SetupGrid(AGameGrid* grid);
+    void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
 
-	EGridTileState GetTileStatus(AGridTile* tile) const;
-	AGameCharacter* GetCharacter(AGridTile* tile) const;
-	AGridTile* GetTile(AGameCharacter* character) const;
 
-	UFUNCTION(BlueprintCallable)
-		void HighlighGridForCharacter(AGameCharacter* character) const;
+    EGridTileState GetTileStatus(AGridTile* tile) const;
+    AGameCharacter* GetCharacter(AGridTile* tile) const;
+    AGridTile* GetTile(AGameCharacter* character) const;
+
+    UFUNCTION(BlueprintCallable)
+        void HighlighGridForCharacter(AGameCharacter* character) const;
 
     UFUNCTION(BlueprintCallable)
         void HideGridHighlight() const;
 
-	UFUNCTION(BlueprintCallable)
-		void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
+    UFUNCTION(BlueprintCallable)
+        void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
 private:
-	UCharacterGridInfo* GetGridInfo(AGridTile* tile) const;
-	UCharacterGridInfo* GetGridInfo(AGameCharacter * character) const;
+    UCharacterGridInfo* GetGridInfo(AGridTile* tile) const;
+    UCharacterGridInfo* GetGridInfo(AGameCharacter* character) const;
 };

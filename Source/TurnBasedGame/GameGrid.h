@@ -30,49 +30,49 @@ struct FStartinPosition
 UCLASS()
 class TURNBASEDGAME_API AGameGrid : public AActor
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareWidth"))
-		int mNbWidth; // x
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
-		int mNbDepth; // y
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareWidth"))
+        int mNbWidth; // x
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
+        int mNbDepth; // y
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
-		TArray<AGridTile*> mTiles;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
-		TSubclassOf<AGridTile> mSquareActorClass;
-    
-	UPROPERTY()
-		AGridTile* mSelectedTile;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
+        TArray<AGridTile*> mTiles;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
+        TSubclassOf<AGridTile> mSquareActorClass;
 
-
-	// Character and position -- this should be in the game mode
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Characters"))
-		TArray<FStartinPosition> mCharacters;
-
-public:	
-	// Sets default values for this actor's properties
-	AGameGrid();
-
-	AGridTile* GetTile(int x, int y);
-
-	bool SelectTile(AGridTile* tile);
-	bool SelectTile(int x, int y);
+    UPROPERTY()
+        AGridTile* mSelectedTile;
 
 
-	int GetWidth() const { return mNbWidth; }
-	int GetDepth() const { return mNbDepth; }
+    // Character and position -- this should be in the GameMode
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Characters"))
+        TArray<FStartinPosition> mCharacters;
 
-	void LightForMovement(AGridTile* tile, int nbTile);
-	void HideSelectors();
+public:
+    // Sets default values for this actor's properties
+    AGameGrid();
+
+    AGridTile* GetTile(int x, int y);
+
+    bool SelectTile(AGridTile* tile);
+    bool SelectTile(int x, int y);
+
+
+    int GetWidth() const { return mNbWidth; }
+    int GetDepth() const { return mNbDepth; }
+
+    void LightForMovement(AGridTile* tile, int nbTile);
+    void HideSelectors();
 
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
 
 private:
-	std::pair<int, int> GetXYPosition(int arrayPos);
+    std::pair<int, int> GetXYPosition(int arrayPos);
 };

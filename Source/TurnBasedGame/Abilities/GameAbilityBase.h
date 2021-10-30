@@ -13,6 +13,6 @@
 UCLASS()
 class TURNBASEDGAME_API UGameAbilityBase : public UGameplayAbility
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
 };
