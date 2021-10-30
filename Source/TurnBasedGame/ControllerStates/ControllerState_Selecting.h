@@ -22,12 +22,15 @@ private:
     UPROPERTY()
         AGameGrid* mGrid;
 
-    // event
+    // events -- theorically, a singlecast could work...but i want to try events 
     DECLARE_EVENT(UControllerState_Selecting, FSelectionChanged)
-    FSelectionChanged TileChangedEvent; // theorically, a singlecast could work...but i want to try events 
+    FSelectionChanged TileChangedEvent; 
 
     DECLARE_EVENT(UControllerState_Selecting, FSelectionError)
-    FSelectionError SelectionErrorEvent; // theorically, a singlecast could work...but i want to try events 
+    FSelectionError SelectionErrorEvent; 
+
+    DECLARE_EVENT(UControllerState_Selecting, FCharacterSelected)
+    FCharacterSelected OnCharacterSelectEvent; 
 
 public:
     void Setup(FGridPosition* position, AGameGrid* grid);
@@ -48,5 +51,10 @@ public:
     FSelectionError& OnSelectionError() // to subscribe to
     {
         return SelectionErrorEvent;
+    }
+
+    FCharacterSelected& OnCharacterSelected() // to subscribe to
+    {
+        return OnCharacterSelectEvent;
     }
 };

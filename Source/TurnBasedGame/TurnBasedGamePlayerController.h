@@ -85,7 +85,9 @@ private:
     void WatchCurrentTile();
     AGridTile* GetCurrentTile() const;
 
-    void SetupNewState(EControllerActionState newState);
+    void SetupFristState();
     void OnStateTileChanged();
+
+    void OnCharacterSelected();
 
 };

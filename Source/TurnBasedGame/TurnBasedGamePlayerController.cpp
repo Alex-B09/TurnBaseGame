@@ -39,7 +39,7 @@ void ATurnBasedGamePlayerController::BeginPlay()
         }
     }
 
-    SetupNewState(EControllerActionState::Selecting);
+    SetupFristState();
     WatchCurrentTile();
 }
 
@@ -264,23 +264,26 @@ void ATurnBasedGamePlayerController::SetUIWidget(UInputWidget* widget)
     mWidget = widget;
 }
 
-void ATurnBasedGamePlayerController::SetupNewState(EControllerActionState newState)
+void ATurnBasedGamePlayerController::SetupFristState()
 {
     UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetupNewState - invalid state"));
     
-    if (newState == EControllerActionState::Selecting)
-    {
-        auto state = NewObject<UControllerState_Selecting>();
-        state->Setup(&mPosition, mGrid);
+    auto state = NewObject<UControllerState_Selecting>();
+    state->Setup(&mPosition, mGrid);
 
-        state->OnTileChanged().AddLambda([=]()
-                                            {
-                                                WatchCurrentTile();
-                                            });
+    state->OnTileChanged().AddLambda([=]()
+                                        {
+                                            WatchCurrentTile();
+                                        });
 
-        mControllerState = state;
+    state->OnCharacterSelected().AddLambda([=]()
+                                           {
+                                               OnCharacterSelected();
+                                           });
+    
+
+    mControllerState = state;
         
-    }
 
     //// AddDynamic does not work...maybe it's something releated to events?
     ////  meh...lambda works...
@@ -295,4 +298,27 @@ void ATurnBasedGamePlayerController::OnStateTileChanged()
     // do something here corresponding the the tile change
     // should it be done here though?
     // the states knows best
+}
+
+void ATurnBasedGamePlayerController::OnCharacterSelected()
+{
+    // change mode to ui
+    // setup new state
+    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
+    auto tile = GetCurrentTile();
+
+    if (auto character = gameplaySubsystem->GetCharacter(tile))
+    {
+        mSelectedCharacter = character;
+        tile->SetToCharacterSelected();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - invalid character returned"));
+        return;
+    }
+
+    //set new state
+
+
 }
