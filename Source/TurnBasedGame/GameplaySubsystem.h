@@ -8,7 +8,7 @@
 #include "GridTile.h"
 #include "GameGrid.h"
 
-#include "GamplaySubsystem.generated.h"
+#include "GameplaySubsystem.generated.h"
 
 UENUM()
 enum class EGridTileState : uint8
@@ -40,7 +40,7 @@ public:
  * 
  */
 UCLASS()
-class TURNBASEDGAME_API UGamplaySubsystem : public UWorldSubsystem
+class TURNBASEDGAME_API UGameplaySubsystem : public UWorldSubsystem
 {
     GENERATED_BODY()
 

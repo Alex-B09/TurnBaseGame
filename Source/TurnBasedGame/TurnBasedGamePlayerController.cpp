@@ -7,7 +7,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 #include <string>
-#include <TurnBasedGame/GamplaySubsystem.h>
+#include <TurnBasedGame/GameplaySubsystem.h>
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
@@ -158,7 +158,7 @@ void ATurnBasedGamePlayerController::OnAction()
     }
     else
     {
-        auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
+        auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
 
         auto tile = GetCurrentTile();
         if (mState == EControllerActionState::Selecting)

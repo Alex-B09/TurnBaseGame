@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GamplaySubsystem.h"
+#include "GameplaySubsystem.h"
 #include <Runtime/AIModule/Classes/AIController.h>
 #include <Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
 
-void UGamplaySubsystem::SetupGrid(AGameGrid* grid)
+void UGameplaySubsystem::SetupGrid(AGameGrid* grid)
 {
     if (grid == nullptr)
     {
-        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::SetupGrid - Invalid grid"));
+        UE_LOG(LogTemp, Log, TEXT("UGameplaySubsystem::SetupGrid - Invalid grid"));
         return;
     }
 
@@ -18,7 +18,7 @@ void UGamplaySubsystem::SetupGrid(AGameGrid* grid)
 
 
 
-void UGamplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable)
+void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable)
 {
     // reject if already occupied
     if (auto info = GetGridInfo(tile))
@@ -46,7 +46,7 @@ void UGamplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass,
     mCharacters.Add(info);
 }
 
-EGridTileState UGamplaySubsystem::GetTileStatus(AGridTile* tile) const
+EGridTileState UGameplaySubsystem::GetTileStatus(AGridTile* tile) const
 {
     if (!tile)
     {
@@ -68,7 +68,7 @@ EGridTileState UGamplaySubsystem::GetTileStatus(AGridTile* tile) const
     return EGridTileState::Empty;
 }
 
-UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGridTile* tile) const
+UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGridTile* tile) const
 {
     if (tile == nullptr)
     {
@@ -87,7 +87,7 @@ UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGridTile* tile) const
     return nullptr;
 }
 
-UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGameCharacter* character) const
+UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGameCharacter* character) const
 {
     if (character == nullptr)
     {
@@ -106,7 +106,7 @@ UCharacterGridInfo* UGamplaySubsystem::GetGridInfo(AGameCharacter* character) co
     return nullptr;
 }
 
-void UGamplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo)
+void UGameplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo)
 {
     UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - moving character"));
 
@@ -135,7 +135,7 @@ void UGamplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tile
     }
 }
 
-AGameCharacter* UGamplaySubsystem::GetCharacter(AGridTile* tile) const
+AGameCharacter* UGameplaySubsystem::GetCharacter(AGridTile* tile) const
 {
     if (tile == nullptr)
     {
@@ -154,7 +154,7 @@ AGameCharacter* UGamplaySubsystem::GetCharacter(AGridTile* tile) const
     return nullptr;
 }
 
-AGridTile* UGamplaySubsystem::GetTile(AGameCharacter* character) const
+AGridTile* UGameplaySubsystem::GetTile(AGameCharacter* character) const
 {
     if (!character)
     {
@@ -173,12 +173,12 @@ AGridTile* UGamplaySubsystem::GetTile(AGameCharacter* character) const
 }
 
 
-void UGamplaySubsystem::HighlighGridForCharacter(AGameCharacter* character) const
+void UGameplaySubsystem::HighlighGridForCharacter(AGameCharacter* character) const
 {
     mGrid->LightForMovement(GetTile(character), 3);
 }
 
-void UGamplaySubsystem::HideGridHighlight() const
+void UGameplaySubsystem::HideGridHighlight() const
 {
     mGrid->HideSelectors();
 }

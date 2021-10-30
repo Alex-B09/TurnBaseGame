@@ -2,7 +2,7 @@
 
 
 #include "GameGrid.h"
-#include <TurnBasedGame/GamplaySubsystem.h>
+#include <TurnBasedGame/GameplaySubsystem.h>
 
 // Sets default values
 AGameGrid::AGameGrid()
@@ -16,7 +16,7 @@ void AGameGrid::BeginPlay()
 {
     Super::BeginPlay();
 
-    GetWorld()->GetSubsystem<UGamplaySubsystem>()->SetupGrid(this);
+    GetWorld()->GetSubsystem<UGameplaySubsystem>()->SetupGrid(this);
 
 
     TArray<UChildActorComponent*> components;
@@ -31,7 +31,7 @@ void AGameGrid::BeginPlay()
         }
     }
 
-    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGamplaySubsystem>();
+    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
     if (gameplaySubsystem == nullptr)
     {
         UE_LOG(LogTemp, Log, TEXT("AGameGrid::BeginPlay -- invalid gameplaySubsystem"));
