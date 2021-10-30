@@ -16,8 +16,6 @@ void UGameplaySubsystem::SetupGrid(AGameGrid* grid)
     mGrid = grid;
 }
 
-
-
 void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable)
 {
     // reject if already occupied

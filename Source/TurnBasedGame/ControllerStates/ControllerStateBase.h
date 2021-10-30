@@ -14,13 +14,14 @@ class TURNBASEDGAME_API UControllerStateBase : public UObject
 {
     GENERATED_BODY()
 
+protected:
+    DECLARE_EVENT(UControllerStateBase, FStateChanged)
+    FStateChanged StateChangedEvent; // event for the states to go to the next one
 
 public:
-    DECLARE_EVENT(UControllerStateBase, FSelectionChanged)
-    FSelectionChanged& OnTileChanged() // to subscribe
+    FStateChanged& OnStateChange() // to subscribe to
     { 
-        // theorically, a singlecast could work...but i want to try events
-        return TileChangedEvent;
+        return StateChangedEvent;
     }
 
     virtual void StartState() {}
@@ -32,6 +33,4 @@ public:
     virtual void OnCancel() {}
 
 private:
-    /** Broadcasts whenever the layer changes */
-    FSelectionChanged TileChangedEvent;
 };

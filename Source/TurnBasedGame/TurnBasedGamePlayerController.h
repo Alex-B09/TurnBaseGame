@@ -8,17 +8,9 @@
 #include "GameGrid.h"
 #include "InputWidget.h"
 #include "ControllerStates/ControllerStateBase.h"
+#include "ControllerStates/ControllerActionState.h"
 
 #include "TurnBasedGamePlayerController.generated.h"
-
-UENUM()
-enum class EControllerActionState : uint8
-{
-    Selecting,
-    Selected,
-    Moving,
-    Attacking
-};
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FControllerGridSelect, AGridTile*, Tile);
@@ -29,10 +21,7 @@ class ATurnBasedGamePlayerController : public APlayerController
 {
     GENERATED_BODY()
 
-
 private:
-
-
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Grid"))
         AGameGrid* mGrid;
 
@@ -46,10 +35,6 @@ private:
     //  i'm not taking any chances
     UPROPERTY()
         FGridPosition mPosition;
-    UPROPERTY()
-        int mCurrentX;
-    UPROPERTY()
-        int mCurrentY;
 
     UPROPERTY()
         UInputWidget* mWidget;
@@ -62,27 +47,19 @@ public:
     void SetMovementMode();
 
     // this exists for the "wait for" ability tasks
-
     UPROPERTY()
         FControllerGridSelect OnTileSelect;
-
     UPROPERTY()
         FControllerCancelled OnCancelled;
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
         AGameCharacter* GetCharacter() const;
 
-
-    void OnStateTileChanged();
-
 protected:
     // Begin PlayerController interface
     virtual void BeginPlay() override;
     virtual void PlayerTick(float DeltaTime) override;
     virtual void SetupInputComponent() override;
-
-
-
 
     // inputs mapping
     void OnMoveUp();
@@ -91,7 +68,6 @@ protected:
     void OnMoveLeft();
     void OnAction();
     void OnCancel();
-
 
     UFUNCTION(BlueprintImplementableEvent)
         void ShowActionMenu();
@@ -109,6 +85,7 @@ private:
     void WatchCurrentTile();
     AGridTile* GetCurrentTile() const;
 
-    void SetupNewState();
+    void SetupNewState(EControllerActionState newState);
+    void OnStateTileChanged();
 
 };
