@@ -8,9 +8,10 @@
 
 // states
 #include "ControllerStates/ControllerState_Selecting.h"
+#include "ControllerStates/ControllerState_UI.h"
 
 #include <string>
-#include <TurnBasedGame/GameplaySubsystem.h>
+#include "GameplaySubsystem.h"
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
@@ -246,7 +247,7 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 
 AGridTile* ATurnBasedGamePlayerController::GetCurrentTile() const
 {
-	return mGrid->GetTile(mPosition.mPosX, mPosition.mPosY);
+	return mGrid->GetTile(mPosition);
 }
 
 void ATurnBasedGamePlayerController::SetMovementMode()
@@ -280,7 +281,6 @@ void ATurnBasedGamePlayerController::SetupFristState()
                                            {
                                                OnCharacterSelected();
                                            });
-    
 
     mControllerState = state;
         
@@ -319,6 +319,24 @@ void ATurnBasedGamePlayerController::OnCharacterSelected()
     }
 
     //set new state
+    ShowActionMenu();
 
+
+
+    auto state = NewObject<UControllerState_UI>();
+    state->Setup(mWidget);
+
+    state->OnActionSelected().AddLambda([=]()
+                                        {
+                                            // should receive action here? no?
+                                        });
+
+    state->OnCancelSelected().AddLambda([=]()
+                                        {
+                                            UE_LOG(LogTemp, Log, TEXT("Reverting to selecting"));
+                                            SetupFristState();
+                                        });
+
+    mControllerState = state;
 
 }

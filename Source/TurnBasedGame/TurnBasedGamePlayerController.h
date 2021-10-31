@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 
 #include "GameGrid.h"
-#include "InputWidget.h"
+#include "UI/InputWidget.h"
 #include "ControllerStates/ControllerStateBase.h"
 #include "ControllerStates/ControllerActionState.h"
 

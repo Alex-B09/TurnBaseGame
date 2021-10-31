@@ -55,10 +55,9 @@ public:
     // Sets default values for this actor's properties
     AGameGrid();
 
-    AGridTile* GetTile(int x, int y);
-
+    AGridTile* GetTile(FGridPosition position);
     bool SelectTile(AGridTile* tile);
-    bool SelectTile(int x, int y);
+    bool SelectTile(FGridPosition position);
 
 
     int GetWidth() const { return mNbWidth; }

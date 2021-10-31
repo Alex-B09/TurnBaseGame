@@ -7,6 +7,7 @@
 #include "GameCharacter.h"
 #include "GridTile.h"
 #include "GameGrid.h"
+#include "Helpers/GridPosition.h"
 
 #include "GameplaySubsystem.generated.h"
 

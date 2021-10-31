@@ -40,7 +40,7 @@ void AGameGrid::BeginPlay()
 
     for (auto& character : mCharacters)
     {
-        if (auto tile = GetTile(character.mGridPosition.mPosX, character.mGridPosition.mPosY))
+        if (auto tile = GetTile(character.mGridPosition))
         {
             gameplaySubsystem->AddCharacter(character.mCharacter, tile, character.mIsPlayerControlled);
         }
@@ -52,8 +52,11 @@ void AGameGrid::BeginPlay()
 }
 
 
-AGridTile* AGameGrid::GetTile(int x, int y)
+AGridTile* AGameGrid::GetTile(FGridPosition position)
 {
+    int x = position.mPosX;
+    int y = position.mPosY;
+
     if (x >= 0 && x < mNbWidth
         && y >= 0 && y < mNbDepth)
     {
@@ -78,9 +81,9 @@ bool AGameGrid::SelectTile(AGridTile* tile)
     return false;
 }
 
-bool AGameGrid::SelectTile(int x, int y)
+bool AGameGrid::SelectTile(FGridPosition position)
 {
-    return SelectTile(GetTile(x, y));
+    return SelectTile(GetTile(position));
 }
 
 void AGameGrid::LightForMovement(AGridTile* tile, int nbTile)

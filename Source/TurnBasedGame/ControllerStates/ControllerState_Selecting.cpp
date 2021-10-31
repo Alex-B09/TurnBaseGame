@@ -15,6 +15,12 @@ void UControllerState_Selecting::Setup(FGridPosition* position, AGameGrid * grid
     mPosition = position;
     mGrid = grid;
     // highlight character
+
+    auto world = mGrid->GetWorld();
+    auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
+
+    //gameplaySubsystem->GetCharacter()
+    //gameplaySubsystem->HighlighGridForCharacter();
 }
 
 void UControllerState_Selecting::OnMoveUp()
@@ -74,13 +80,12 @@ void UControllerState_Selecting::OnMoveRight()
     }
 }
 
-
 void UControllerState_Selecting::OnAction()
 {
     auto world = mGrid->GetWorld();
     auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
 
-    auto tile = mGrid->GetTile(mPosition->mPosX, mPosition->mPosY);
+    auto tile = mGrid->GetTile(*mPosition);
     auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
 
     if (tileStatus == EGridTileState::Empty)
@@ -103,5 +108,5 @@ void UControllerState_Selecting::OnAction()
 
 void UControllerState_Selecting::OnCancel()
 {
-
+    // go back to old state
 }

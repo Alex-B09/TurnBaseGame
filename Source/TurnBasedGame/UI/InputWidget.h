@@ -14,7 +14,7 @@ class TURNBASEDGAME_API UInputWidget : public UUserWidget
 {
     GENERATED_BODY()
 
-protected:
+public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")
         void OnInputUp();
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")
