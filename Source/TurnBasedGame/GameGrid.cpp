@@ -25,7 +25,7 @@ void AGameGrid::BeginPlay()
     for (auto component : components)
     {
         // if the component is an instance of the selected class
-        if (component->GetChildActor()->IsA(mSquareActorClass->GetDefaultObject()->StaticClass()))
+        if (component->GetChildActor()->IsA(mTileActorClass->GetDefaultObject()->StaticClass()))
         {
             mTiles.Add(Cast<AGridTile>(component->GetChildActor()));
         }
@@ -65,46 +65,23 @@ AGridTile* AGameGrid::GetTile(FGridPosition position)
     return nullptr;
 }
 
-bool AGameGrid::SelectTile(AGridTile* tile)
+FGridPosition AGameGrid::GetTilePosition(AGridTile* tile)
 {
-    if (tile)
-    {
-        tile->SetToSelection();
+    // get index first
+    int index = mTiles.Find(tile);
+    auto [x, y] = GetXYPosition(index);
 
-        if (mSelectedTile)
-        {
-            mSelectedTile->RemoveLastState();
-        }
-        mSelectedTile = tile;
-        return true;
-    }
-    return false;
+    return FGridPosition{ x,y };
 }
 
-bool AGameGrid::SelectTile(FGridPosition position)
-{
-    return SelectTile(GetTile(position));
-}
-
-void AGameGrid::LightForMovement(AGridTile* tile, int nbTile)
+void AGameGrid::LightForMovement(AGridTile* centerTile, int nbTile)
 {
     // get tile position
+    auto tiles = GetTiles(centerTile, nbTile);
 
-    auto asdf = mTiles.Num();
-
-    int position = mTiles.Find(tile);
-
-    // get x,y position
-    auto [posX, posY] = GetXYPosition(position);
-
-    for (int index = 0; index < mTiles.Num(); ++index)
+    for (auto tile : tiles)
     {
-        auto [x, y] = GetXYPosition(index);
-        int distance = FMath::Abs(x - posX) + FMath::Abs(y - posY);
-        if (distance <= nbTile)
-        {
-            mTiles[index]->SetToMovement();
-        }
+        tile->SetToMovement();
     }
 }
 
@@ -119,4 +96,25 @@ void AGameGrid::HideSelectors()
 std::pair<int, int> AGameGrid::GetXYPosition(int arrayPos)
 {
     return std::pair<int, int>(arrayPos / mNbWidth, arrayPos % mNbWidth);
+}
+
+TArray<AGridTile*> AGameGrid::GetTiles(AGridTile* centerTile, int distanceFromTile)
+{
+    TArray<AGridTile*> tiles;
+    int position = mTiles.Find(centerTile);
+
+    // get x,y position
+    auto [posX, posY] = GetXYPosition(position);
+
+    for (int index = 0; index < mTiles.Num(); ++index)
+    {
+        auto [x, y] = GetXYPosition(index);
+        int distance = FMath::Abs(x - posX) + FMath::Abs(y - posY);
+        if (distance <= distanceFromTile)
+        {
+            tiles.Add(mTiles[index]);
+        }
+    }
+
+    return tiles;
 }

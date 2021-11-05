@@ -26,15 +26,12 @@ private:
         AGameGrid* mGrid;
 
     UPROPERTY()
-        EControllerActionState mState = EControllerActionState::Selecting;
-
-    UPROPERTY()
         AGameCharacter* mSelectedCharacter;
 
     // technicaly, i dont need the uproperty here...but i had so many problems in the past...
     //  i'm not taking any chances
     UPROPERTY()
-        FGridPosition mPosition;
+        AGridTile * mCurrentTile;
 
     UPROPERTY()
         UInputWidget* mWidget;
@@ -85,9 +82,9 @@ private:
     void WatchCurrentTile();
     AGridTile* GetCurrentTile() const;
 
-    void SetupFristState();
-    void OnStateTileChanged();
-
+    void SetupFirstState();
     void OnCharacterSelected();
+    void ProcessUIAction(FGameplayTag tag);
 
+    void SwitchCurrentTile(AGridTile* newTile);
 };

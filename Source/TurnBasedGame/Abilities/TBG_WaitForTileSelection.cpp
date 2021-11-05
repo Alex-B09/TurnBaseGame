@@ -38,9 +38,6 @@ void UTBG_WaitForTileSelection::Activate()
     controller->SetMovementMode();
     controller->OnTileSelect.AddDynamic(this, &UTBG_WaitForTileSelection::OnTileSelected);
     controller->OnCancelled.AddDynamic(this, &UTBG_WaitForTileSelection::OnCancelled);
-
-
-    //abilities->ReceivedDamage.AddDynamic(this, &UTBG_WaitForTileSelection::OnTileSelected);
 }
 
 void UTBG_WaitForTileSelection::OnDestroy(bool AbilityIsEnding)

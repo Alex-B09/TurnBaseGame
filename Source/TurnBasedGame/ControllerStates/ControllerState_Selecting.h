@@ -16,14 +16,17 @@ class TURNBASEDGAME_API UControllerState_Selecting : public UControllerStateBase
 {
     GENERATED_BODY()
 
-private:
-    FGridPosition* mPosition; // can't uproperty that one...hope this wont screw up everything later...
+protected:
+        FGridPosition mStartingTile;
+    UPROPERTY()
+        AGridTile* mCurrentTile;
 
     UPROPERTY()
         AGameGrid* mGrid;
 
-    // events -- theorically, a singlecast could work...but i want to try events 
-    DECLARE_EVENT(UControllerState_Selecting, FSelectionChanged)
+    // events -- theorically, a singlecast and dynamiccast could work...but i want to try events 
+    // the 2 params are old and new tile
+    DECLARE_EVENT_OneParam(UControllerState_Selecting, FSelectionChanged, AGridTile*)
     FSelectionChanged TileChangedEvent; 
 
     DECLARE_EVENT(UControllerState_Selecting, FSelectionError)
@@ -32,8 +35,15 @@ private:
     DECLARE_EVENT(UControllerState_Selecting, FCharacterSelected)
     FCharacterSelected OnCharacterSelectEvent; 
 
+    DECLARE_EVENT(UControllerState_Selecting, FEmptyTileSelected)
+    FEmptyTileSelected OnEmtpyTileSelectEvent;
+
+    DECLARE_EVENT(UControllerState_UI, FCancelSelected)
+    FCancelSelected CancelSelectedEvent;
+    
+
 public:
-    void Setup(FGridPosition* position, AGameGrid* grid);
+    void Setup(AGridTile * startingTile, AGameGrid* grid);
 
     void OnMoveUp() override;
     void OnMoveDown() override;
@@ -41,7 +51,6 @@ public:
     void OnMoveRight() override;
     void OnAction() override;
     void OnCancel() override;
-
 
     FSelectionChanged& OnTileChanged() // to subscribe to
     {
@@ -57,4 +66,21 @@ public:
     {
         return OnCharacterSelectEvent;
     }
+
+    FEmptyTileSelected& OnEmptyTileSelected() // to subscribe to
+    {
+        return OnEmtpyTileSelectEvent;
+    }
+
+    FCancelSelected& OnCancelSelected() // to subscribe to
+    {
+        return CancelSelectedEvent;
+    }
+
+protected:
+    AGridTile* GetCurrentTile() const;
+
+private:
+    virtual bool IsValidPosition(AGridTile* newTile);
+    void AssignNextTile(int xChanges, int yChanges);
 };

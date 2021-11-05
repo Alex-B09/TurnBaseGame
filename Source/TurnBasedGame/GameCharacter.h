@@ -16,14 +16,11 @@ class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySyste
     GENERATED_BODY()
 
 
-        UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         UAbilitySystemComponent* mAbilitySystem;
-
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameplayAbility> mMovementAbility;
-
-
 
 public:
     // Sets default values for this character's properties
@@ -51,5 +48,30 @@ public:
     // get stats (hp and whatnot)
 
     // abilities?
+
+
+
+    // events
+protected:
+    DECLARE_EVENT(AGameCharacter, FCharacterMovement)
+    FCharacterMovement StartedMovementEvent;
+    FCharacterMovement FinishedMovementEvent;
+
+public:
+    FCharacterMovement& OnStartedMovement() // to subscribe to
+    {
+        return StartedMovementEvent;
+    }
+    
+    FCharacterMovement& OnFinishMovement() // to subscribe to
+    {
+        return FinishedMovementEvent;
+    }
+
+
+    UFUNCTION(BlueprintCallable)
+        void MovementStarted();
+    UFUNCTION(BlueprintCallable)
+        void MovementFinished();
 
 };

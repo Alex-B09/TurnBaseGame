@@ -30,8 +30,8 @@ void UControllerState_UI::OnMoveRight()
 
 void UControllerState_UI::OnAction()
 {
-    mWidget->OnInputAction();
-    ActionSelectedEvent.Broadcast();
+    auto tag = mWidget->OnInputAction();
+    ActionSelectedEvent.Broadcast(tag);
 }
 
 void UControllerState_UI::OnCancel()

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GameplayTagContainer.h"
+
 #include "InputWidget.generated.h"
 
 /**
@@ -24,7 +26,17 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")
         void OnInputRight();
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")
-        void OnInputAction();
+        void OnInputAction(FGameplayTag &tag);
     UFUNCTION(BlueprintImplementableEvent, Category = "Inputs")
         void OnInputCancel();
+    UFUNCTION(BlueprintImplementableEvent, Category = "Logic")
+        void CloseUI();
+    UFUNCTION(BlueprintImplementableEvent, Category = "Logic")
+        void HideUI();
+    UFUNCTION(BlueprintImplementableEvent, Category = "Logic")
+        void UnHideUI();
+
+
+    // C++ friendly helper function
+    FGameplayTag OnInputAction();
 };

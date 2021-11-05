@@ -10,87 +10,42 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 
-void UControllerState_Selecting::Setup(FGridPosition* position, AGameGrid * grid)
+void UControllerState_Selecting::Setup(AGridTile* startingTile, AGameGrid * grid)
 {
-    mPosition = position;
+    mCurrentTile = startingTile;
     mGrid = grid;
-    // highlight character
-
-    auto world = mGrid->GetWorld();
-    auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-
-    //gameplaySubsystem->GetCharacter()
-    //gameplaySubsystem->HighlighGridForCharacter();
 }
 
 void UControllerState_Selecting::OnMoveUp()
 {
-    int width = mGrid->GetDepth();
-
-    if (mPosition->mPosY + 1 < width)
-    {
-        mPosition->mPosY += 1;
-        TileChangedEvent.Broadcast();
-    }
-    else
-    {
-        SelectionErrorEvent.Broadcast();
-    }
+    AssignNextTile(0, 1);
 }
 
 void UControllerState_Selecting::OnMoveDown()
 {
-    int width = mGrid->GetDepth();
-
-    if (mPosition->mPosY - 1 >= 0)
-    {
-        mPosition->mPosY -= 1;
-        TileChangedEvent.Broadcast();
-    }
-    else
-    {
-        SelectionErrorEvent.Broadcast();
-    }
+    AssignNextTile(0, -1);
 }
 
 void UControllerState_Selecting::OnMoveLeft()
 {
-    if (mPosition->mPosX - 1 >= 0)
-    {
-        mPosition->mPosX -= 1;
-        TileChangedEvent.Broadcast();
-    }
-    else
-    {
-        SelectionErrorEvent.Broadcast();
-    }
+    AssignNextTile(-1, 0);
 }
 
 void UControllerState_Selecting::OnMoveRight()
 {
-    int depth = mGrid->GetWidth();
-    if (mPosition->mPosX + 1 < depth)
-    {
-        mPosition->mPosX += 1;
-        TileChangedEvent.Broadcast();
-    }
-    else
-    {
-        SelectionErrorEvent.Broadcast();
-    }
+    AssignNextTile(1, 0);
 }
 
 void UControllerState_Selecting::OnAction()
 {
     auto world = mGrid->GetWorld();
     auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-
-    auto tile = mGrid->GetTile(*mPosition);
-    auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
+    auto tileStatus = gameplaySubsystem->GetTileStatus(mCurrentTile);
 
     if (tileStatus == EGridTileState::Empty)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile Empty"));
+        OnEmptyTileSelected().Broadcast();
     }
     else if (tileStatus == EGridTileState::IsCharacterEnemy)
     {
@@ -99,14 +54,35 @@ void UControllerState_Selecting::OnAction()
     else if (tileStatus == EGridTileState::IsCharacterPlayer)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile character"));
-
         OnCharacterSelectEvent.Broadcast();
-
-        UE_LOG(LogTemp, Log, TEXT("Selected"));
     }
 }
 
 void UControllerState_Selecting::OnCancel()
 {
-    // go back to old state
+    CancelSelectedEvent.Broadcast();
+}
+
+bool UControllerState_Selecting::IsValidPosition(AGridTile * newTile)
+{
+    return newTile != nullptr;
+}
+
+void UControllerState_Selecting::AssignNextTile(int xChanges, int yChanges)
+{
+    // its a bit slow to always search in the grid...but meh
+    FGridPosition pos = mGrid->GetTilePosition(mCurrentTile);
+    pos.mPosX += xChanges;
+    pos.mPosY += yChanges;
+    auto newTile = mGrid->GetTile(pos);
+
+    if (IsValidPosition(newTile))
+    {
+        TileChangedEvent.Broadcast(newTile);
+        mCurrentTile = newTile;
+    }
+    else
+    {
+        SelectionErrorEvent.Broadcast();
+    }
 }

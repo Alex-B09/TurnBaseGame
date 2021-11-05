@@ -3,3 +3,9 @@
 
 #include "InputWidget.h"
 
+FGameplayTag UInputWidget::OnInputAction()
+{
+    FGameplayTag tag;
+    OnInputAction(tag);
+    return tag;
+}

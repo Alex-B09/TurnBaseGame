@@ -38,10 +38,10 @@ private:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
         int mNbDepth; // y
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Squares"))
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Tiles"))
         TArray<AGridTile*> mTiles;
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "SquareActorClass"))
-        TSubclassOf<AGridTile> mSquareActorClass;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "TileActorClass"))
+        TSubclassOf<AGridTile> mTileActorClass;
 
     UPROPERTY()
         AGridTile* mSelectedTile;
@@ -56,15 +56,15 @@ public:
     AGameGrid();
 
     AGridTile* GetTile(FGridPosition position);
-    bool SelectTile(AGridTile* tile);
-    bool SelectTile(FGridPosition position);
-
+    FGridPosition GetTilePosition(AGridTile*);
 
     int GetWidth() const { return mNbWidth; }
     int GetDepth() const { return mNbDepth; }
 
-    void LightForMovement(AGridTile* tile, int nbTile);
+    void LightForMovement(AGridTile* centerTile, int nbTile);
     void HideSelectors();
+
+    TArray<AGridTile*> GetTiles(AGridTile* centerTile, int distanceFromTile);
 
 
 protected:

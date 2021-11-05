@@ -124,7 +124,7 @@ void UGameplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* til
 
         UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - hum...."));
         info->mCharacter->Move(info->mTile, positions);
-
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::MoveCharacter - test"));
         info->mTile = tileToMoveTo;
     }
     else
@@ -179,4 +179,11 @@ void UGameplaySubsystem::HighlighGridForCharacter(AGameCharacter* character) con
 void UGameplaySubsystem::HideGridHighlight() const
 {
     mGrid->HideSelectors();
+}
+
+TArray<AGridTile*> UGameplaySubsystem::GetAvailableMovementTiles(AGameCharacter* character)
+{
+    auto tile = GetTile(character);
+    auto availableTiles = mGrid->GetTiles(tile, 3); // replace the 3 to use the abilitySet
+    return availableTiles;
 }

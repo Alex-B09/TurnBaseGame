@@ -25,14 +25,7 @@ void AGridTile::BeginPlay()
 
 void AGridTile::SetToSelection()
 {
-	if (mStates.Num() > 0)
-	{
-		if (mStates.Last() == ETileState::SelectedCharacter)
-		{
-			return; // dont do anything if it is the character tile
-		}
-	}
-	mStates.Add(ETileState::Selected);
+    mStates.Add(ETileState::Selected);
 	BP_UpdateState();
 }
 

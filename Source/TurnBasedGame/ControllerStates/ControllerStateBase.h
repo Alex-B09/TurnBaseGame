@@ -17,16 +17,7 @@ class TURNBASEDGAME_API UControllerStateBase : public UObject
 {
     GENERATED_BODY()
 
-protected:
-    DECLARE_EVENT_OneParam(UControllerStateBase, FStateChanged, EControllerActionState)
-    FStateChanged StateChangedEvent; // event for the states to go to the next one
-
 public:
-    FStateChanged& OnStateChange() // to subscribe to
-    { 
-        return StateChangedEvent;
-    }
-
     virtual void StartState() {}
     virtual void OnMoveUp() {}
     virtual void OnMoveDown() {}

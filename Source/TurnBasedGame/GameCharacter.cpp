@@ -37,3 +37,14 @@ UAbilitySystemComponent* AGameCharacter::GetAbilitySystemComponent() const
 {
     return mAbilitySystem;
 }
+
+void AGameCharacter::MovementStarted()
+{
+    StartedMovementEvent.Broadcast();
+}
+
+void AGameCharacter::MovementFinished()
+{
+    FinishedMovementEvent.Broadcast();
+}
+

@@ -61,11 +61,14 @@ public:
     void SetupGrid(AGameGrid* grid);
     void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
 
-
+    TArray<AGridTile*> GetAvailableMovementTiles(AGameCharacter* character);
+    
     EGridTileState GetTileStatus(AGridTile* tile) const;
     AGameCharacter* GetCharacter(AGridTile* tile) const;
     AGridTile* GetTile(AGameCharacter* character) const;
 
+
+public:
     UFUNCTION(BlueprintCallable)
         void HighlighGridForCharacter(AGameCharacter* character) const;
 
@@ -74,6 +77,8 @@ public:
 
     UFUNCTION(BlueprintCallable)
         void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
+
+
 private:
     UCharacterGridInfo* GetGridInfo(AGridTile* tile) const;
     UCharacterGridInfo* GetGridInfo(AGameCharacter* character) const;

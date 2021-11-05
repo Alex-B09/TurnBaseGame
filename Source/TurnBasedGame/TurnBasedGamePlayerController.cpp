@@ -1,21 +1,27 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TurnBasedGamePlayerController.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "Runtime/Engine/Classes/Components/DecalComponent.h"
-#include "Engine/World.h"
-#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 // states
 #include "ControllerStates/ControllerState_Selecting.h"
 #include "ControllerStates/ControllerState_UI.h"
+#include "ControllerStates/ControllerState_Movement.h"
+
+#include "Abilities/GameAbility_Movement.h"
+
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Runtime/Engine/Classes/Components/DecalComponent.h"
+#include "Engine/World.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Helpers/TagsConst.h"
+#include "Helpers/AbilityHelper.h"
+
 
 #include <string>
 #include "GameplaySubsystem.h"
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
-    :mPosition{0,0}
 {
     bShowMouseCursor = true;
     DefaultMouseCursor = EMouseCursor::Crosshairs;
@@ -37,10 +43,19 @@ void ATurnBasedGamePlayerController::BeginPlay()
         else
         {
             UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::BeginPlay - invalid grid"));
+            return;
         }
     }
 
-    SetupFristState();
+    mCurrentTile = mGrid->GetTile(FGridPosition{ 0,0 });
+
+    if (!mCurrentTile)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::BeginPlay - invalid startup tile"));
+        return;
+    }
+
+    SetupFirstState();
     WatchCurrentTile();
 }
 
@@ -125,65 +140,6 @@ void ATurnBasedGamePlayerController::OnAction()
     }
 
     mControllerState->OnAction();
-
-    //if (mState == EControllerActionState::Selected)
-    //{
-    //    //OnAction_UI();
-    //}
-    //else
-    //{
-    //    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
-
-    //    auto tile = GetCurrentTile();
-    //    if (mState == EControllerActionState::Selecting)
-    //    {
-    //        auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
-
-    //        if (tileStatus == EGridTileState::Empty)
-    //        {
-    //            UE_LOG(LogTemp, Log, TEXT("Tile Empty"));
-    //        }
-    //        else if (tileStatus == EGridTileState::IsCharacterEnemy)
-    //        {
-    //            UE_LOG(LogTemp, Log, TEXT("Tile enemy"));
-    //        }
-    //        else if (tileStatus == EGridTileState::IsCharacterPlayer)
-    //        {
-    //            UE_LOG(LogTemp, Log, TEXT("Tile character"));
-    //
-    //            // in mode selected
-    //            mState = EControllerActionState::Selected;
-    //
-    //            if (auto character = gameplaySubsystem->GetCharacter(tile))
-    //            {
-    //                mSelectedCharacter = character;
-    //                tile->SetToCharacterSelected();
-    //            }
-    //            else
-    //            {
-    //                UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - invalid character returned"));
-    //            }
-    //            ShowActionMenu();
-    //
-    //            UE_LOG(LogTemp, Log, TEXT("Selected"));
-    //        }
-    //    }
-    //    else if (mState == EControllerActionState::Moving)
-    //    {
-    //        OnTileSelect.Broadcast(tile);
-
-    //        //auto tileStatus = gameplaySubsystem->GetTileStatus(tile);
-
-    //        //// if unocupied tile
-    //        //if (tileStatus == EGridTileState::Empty)
-    //        //{
-    //        //	// move character
-    //        //	mGrid->HideSelectors();
-    //        //	gameplaySubsystem->MoveCharacter(mSelectedCharacter, tile);
-    //        //	tile->SetToCharacterSelected();
-    //        //}
-    //    }
-    //}
 }
 
 void ATurnBasedGamePlayerController::OnCancel()
@@ -197,24 +153,6 @@ void ATurnBasedGamePlayerController::OnCancel()
     }
 
     mControllerState->OnCancel();
-
-    //if (mState == EControllerActionState::Selected)
-    //{
-    //    UE_LOG(LogTemp, Log, TEXT("Reverting to selecting"));
-    //    
-    //    // revert to selecting
-    //    //OnCancel_UI();
-    //}
-    //else
-    //{
-    //    if (mState == EControllerActionState::Moving)
-    //    {
-    //        OnCancelled.Broadcast();
-    //        mState = EControllerActionState::Selecting;
-    //    }
-    //    // hide movement
-    //    mGrid->HideSelectors();
-    //}
 }
 
 void ATurnBasedGamePlayerController::WatchCurrentTile()
@@ -223,16 +161,8 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 	{
 		if (auto tile = GetCurrentTile())
 		{
-			//UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - watch x:%d y:%d"), mCurrentX, mCurrentY);
-
-			if (mGrid->SelectTile(tile)) // should never be false...but...just to be sure
-			{
-				OnWatchTile(tile);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::WatchCurrentTile - x:%d y:%d -- error on select tile -- should never happen"), mPosition.mPosX, mPosition.mPosY);
-			}
+            tile->SetToSelection();
+            OnWatchTile(tile);
 		}
 		else
 		{
@@ -247,12 +177,7 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 
 AGridTile* ATurnBasedGamePlayerController::GetCurrentTile() const
 {
-	return mGrid->GetTile(mPosition);
-}
-
-void ATurnBasedGamePlayerController::SetMovementMode()
-{
-	mState = EControllerActionState::Moving;
+    return mCurrentTile;
 }
 
 AGameCharacter* ATurnBasedGamePlayerController::GetCharacter() const
@@ -265,17 +190,111 @@ void ATurnBasedGamePlayerController::SetUIWidget(UInputWidget* widget)
     mWidget = widget;
 }
 
-void ATurnBasedGamePlayerController::SetupFristState()
+
+void ATurnBasedGamePlayerController::SetMovementMode()
 {
-    UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetupNewState - invalid state"));
+    if (!mSelectedCharacter)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetMovementMode - invalid input"));
+        return;
+    }
+
+    // activate ability
+    auto abilities = mSelectedCharacter->GetAbilitySystemComponent()->GetActivatableAbilities();
+    AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Movement>(mSelectedCharacter->GetAbilitySystemComponent());
+
+    auto state = NewObject<UControllerState_Movement>();
+
+    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
+    auto availableTiles = gameplaySubsystem->GetAvailableMovementTiles(mSelectedCharacter);
+    auto tile = GetCurrentTile();
+
+    state->Setup(mCurrentTile, mGrid, availableTiles);
+
+    auto changeToMenuStateLambda = [=]()
+    {
+        // go to ui mode  
+        ShowActionMenu();
+
+        if (!mWidget)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnCharacterSelected - invalid widget"));
+            return;
+        }
+
+        auto state = NewObject<UControllerState_UI>();
+        state->Setup(mWidget);
+
+
+
+        mControllerState = state;
+    };
+
+    auto emptyTileEventLambda = [=]()
+                                {
+                                    OnTileSelect.Broadcast(GetCurrentTile());
+                                    // register to movement finished
+
+                                    auto emptyEventsLambda = [=]
+                                                             {
+                                                                 mSelectedCharacter->OnStartedMovement().Clear();
+                                                                 mSelectedCharacter->OnFinishMovement().Clear();
+                                                                 changeToMenuStateLambda();
+                                                             };
+
+                                    mSelectedCharacter->OnFinishMovement().AddLambda(changeToMenuStateLambda);
+                                    mSelectedCharacter->OnFinishMovement().AddLambda(emptyEventsLambda);
+                                };
+
+    auto selfSelectLambda = [=]()
+    {
+        // check if self
+        auto selectedTile = GetCurrentTile();
+        auto character = gameplaySubsystem->GetCharacter(selectedTile);
+        if (character != mSelectedCharacter)
+        {
+            return;
+        }
+
+        changeToMenuStateLambda();
+    };
+
+    auto cancelEventLambda = [=]()
+                             {
+                                 OnCancelled.Broadcast();
+
+                                 mCurrentTile = tile;
+                                 tile->SetToCharacterSelected();
+                                 WatchCurrentTile();
+
+                                 SetupFirstState();
+                             };
+
+    state->OnEmptyTileSelected().AddLambda(emptyTileEventLambda);
+    state->OnCancelSelected().AddLambda(cancelEventLambda);
+    state->OnCharacterSelected().AddLambda(selfSelectLambda);
+
+    state->OnTileChanged().AddLambda([=](AGridTile* newTile)
+                                     {
+                                         SwitchCurrentTile(newTile);
+                                     });
+
+    mControllerState = state;
+}
+
+void ATurnBasedGamePlayerController::SetupFirstState()
+{
+    UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetupNewState - setup basic selection state"));
     
     auto state = NewObject<UControllerState_Selecting>();
-    state->Setup(&mPosition, mGrid);
+    state->Setup(mCurrentTile, mGrid);
 
-    state->OnTileChanged().AddLambda([=]()
-                                        {
-                                            WatchCurrentTile();
-                                        });
+    // AddDynamic does not work...maybe it's something releated to events?
+    //  meh...lambda works...
+    state->OnTileChanged().AddLambda([=](AGridTile* newTile)
+                                     {
+                                         SwitchCurrentTile(newTile);
+                                     });
 
     state->OnCharacterSelected().AddLambda([=]()
                                            {
@@ -283,21 +302,6 @@ void ATurnBasedGamePlayerController::SetupFristState()
                                            });
 
     mControllerState = state;
-        
-
-    //// AddDynamic does not work...maybe it's something releated to events?
-    ////  meh...lambda works...
-    //mControllerState->OnTileChanged().AddLambda([=]()
-    //                                            {
-    //                                                OnStateTileChanged();
-    //                                            });
-}
-
-void ATurnBasedGamePlayerController::OnStateTileChanged()
-{
-    // do something here corresponding the the tile change
-    // should it be done here though?
-    // the states knows best
 }
 
 void ATurnBasedGamePlayerController::OnCharacterSelected()
@@ -318,25 +322,25 @@ void ATurnBasedGamePlayerController::OnCharacterSelected()
         return;
     }
 
-    //set new state
-    ShowActionMenu();
 
 
+    SetMovementMode();
 
-    auto state = NewObject<UControllerState_UI>();
-    state->Setup(mWidget);
+    //// setup new state
+    
+}
 
-    state->OnActionSelected().AddLambda([=]()
-                                        {
-                                            // should receive action here? no?
-                                        });
+void ATurnBasedGamePlayerController::ProcessUIAction(FGameplayTag tag)
+{
+    if (tag.GetTagName() == TagConst::UI_MOVEMENT)
+    {
+        
+    }
+}
 
-    state->OnCancelSelected().AddLambda([=]()
-                                        {
-                                            UE_LOG(LogTemp, Log, TEXT("Reverting to selecting"));
-                                            SetupFristState();
-                                        });
-
-    mControllerState = state;
-
+void ATurnBasedGamePlayerController::SwitchCurrentTile(AGridTile* newTile)
+{
+    mCurrentTile->RemoveLastState();
+    mCurrentTile = newTile;
+    WatchCurrentTile();
 }

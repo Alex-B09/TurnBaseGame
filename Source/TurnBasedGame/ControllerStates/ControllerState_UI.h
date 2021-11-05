@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ControllerStateBase.h"
 
+#include "ControllerStateBase.h"
 #include "../UI/InputWidget.h"
 
+#include "GameplayTagContainer.h"
 #include "ControllerState_UI.generated.h"
 
 /**
@@ -20,7 +21,7 @@ class TURNBASEDGAME_API UControllerState_UI : public UControllerStateBase
     UPROPERTY()
         UInputWidget* mWidget;
 
-    DECLARE_EVENT(UControllerState_UI, FActionSelected)
+    DECLARE_EVENT_OneParam(UControllerState_UI, FActionSelected, FGameplayTag)
     FActionSelected ActionSelectedEvent;
 
     DECLARE_EVENT(UControllerState_UI, FCancelSelected)
