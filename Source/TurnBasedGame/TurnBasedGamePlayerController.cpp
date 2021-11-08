@@ -225,8 +225,6 @@ void ATurnBasedGamePlayerController::SetMovementMode()
         auto state = NewObject<UControllerState_UI>();
         state->Setup(mWidget);
 
-
-
         mControllerState = state;
     };
 
@@ -250,6 +248,8 @@ void ATurnBasedGamePlayerController::SetMovementMode()
     {
         // check if self
         auto selectedTile = GetCurrentTile();
+        OnTileSelect.Broadcast(selectedTile);
+        
         auto character = gameplaySubsystem->GetCharacter(selectedTile);
         if (character != mSelectedCharacter)
         {

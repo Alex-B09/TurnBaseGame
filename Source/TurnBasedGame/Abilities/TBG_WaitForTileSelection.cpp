@@ -11,7 +11,7 @@ void UTBG_WaitForTileSelection::OnTileSelected(AGridTile* Tile)
     if (ShouldBroadcastAbilityTaskDelegates())
     {
         // broadcast here
-        OnTileSelect.Broadcast(Tile);
+        OnActionSelect.Broadcast(Tile);
     }
 }
 
@@ -57,7 +57,6 @@ void UTBG_WaitForTileSelection::OnDestroy(bool AbilityIsEnding)
 
     Super::OnDestroy(AbilityIsEnding);
 }
-
 
 UTBG_WaitForTileSelection* UTBG_WaitForTileSelection::WaitForTileSlection(UGameplayAbility* OwningAbility, bool TriggerOnce)
 {

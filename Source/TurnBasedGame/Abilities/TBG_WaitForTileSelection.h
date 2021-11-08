@@ -27,8 +27,8 @@ class TURNBASEDGAME_API UTBG_WaitForTileSelection : public UAbilityTask
     GENERATED_BODY()
 
         // this shows in the bp
-        UPROPERTY(BlueprintAssignable)
-        FWaitTileSelect OnTileSelect;
+    UPROPERTY(BlueprintAssignable)
+        FWaitTileSelect OnActionSelect;
     UPROPERTY(BlueprintAssignable)
         FWaitTileSelect OnCancel;
 
