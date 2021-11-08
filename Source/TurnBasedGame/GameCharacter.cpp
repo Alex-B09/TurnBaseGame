@@ -9,21 +9,30 @@ AGameCharacter::AGameCharacter()
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
     mAbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+
+    //mAttributes = NewObject<UCharacterAttributes>(this);
+    mAttributes = CreateDefaultSubobject<UCharacterAttributes>(TEXT("Ability Set"));
 }
 
 // Called when the game starts or when spawned
 void AGameCharacter::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     if (mAbilitySystem)
     {
         mAbilitySystem->InitAbilityActorInfo(this, this);
+        
+        if (mInitialAttributes)
+        {
+            mAttributes->InitFromMetaDataTable(mInitialAttributes);
+        }
 
         //auto specHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(ability.GetDefaultObject(), 1, 0));
 
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mMovementAbility.GetDefaultObject(), 0));
     }
+
 
 }
 

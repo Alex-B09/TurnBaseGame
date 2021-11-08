@@ -163,6 +163,7 @@ void ATurnBasedGamePlayerController::WatchCurrentTile()
 		{
             tile->SetToSelection();
             OnWatchTile(tile);
+            OnTileChanged.Broadcast(tile);
 		}
 		else
 		{

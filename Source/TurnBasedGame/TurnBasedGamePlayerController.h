@@ -48,6 +48,9 @@ public:
         FControllerGridSelect OnTileSelect;
     UPROPERTY()
         FControllerCancelled OnCancelled;
+    UPROPERTY(BlueprintAssignable)
+        FControllerGridSelect OnTileChanged;
+
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
         AGameCharacter* GetCharacter() const;

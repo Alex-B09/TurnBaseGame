@@ -64,7 +64,10 @@ public:
     TArray<AGridTile*> GetAvailableMovementTiles(AGameCharacter* character);
     
     EGridTileState GetTileStatus(AGridTile* tile) const;
-    AGameCharacter* GetCharacter(AGridTile* tile) const;
+
+    UFUNCTION(BlueprintCallable)
+        AGameCharacter* GetCharacter(AGridTile* tile) const;
+
     AGridTile* GetTile(AGameCharacter* character) const;
 
 
