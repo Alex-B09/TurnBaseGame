@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameAbilityBase.h"
+
 #include "GameAbility_Defend.generated.h"
 
 // I have done the movement in BP
@@ -17,7 +18,13 @@ class TURNBASEDGAME_API UGameAbility_Defend : public UGameAbilityBase
 {
 	GENERATED_BODY()
 
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+        TSubclassOf<UGameplayEffect> mDefenseEffect;
 
+public:
+    UGameAbility_Defend();
 
-	
+    void Setup(TSubclassOf<UGameplayEffect> defenseEffect);
+
+    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

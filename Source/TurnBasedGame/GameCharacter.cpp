@@ -2,6 +2,7 @@
 
 
 #include "GameCharacter.h"
+#include "Helpers/AbilityHelper.h"
 
 // Sets default values
 AGameCharacter::AGameCharacter()
@@ -31,6 +32,7 @@ void AGameCharacter::BeginPlay()
         //auto specHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(ability.GetDefaultObject(), 1, 0));
 
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mMovementAbility.GetDefaultObject(), 0));
+        mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mDefendAbility.GetDefaultObject(), 0));
     }
 
 
@@ -56,4 +58,3 @@ void AGameCharacter::MovementFinished()
 {
     FinishedMovementEvent.Broadcast();
 }
-

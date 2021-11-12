@@ -208,7 +208,7 @@ void ATurnBasedGamePlayerController::SetMovementMode()
 
     auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
     auto availableTiles = gameplaySubsystem->GetAvailableMovementTiles(mSelectedCharacter);
-    auto tile = GetCurrentTile();
+    auto tile = mCurrentTile; // usefull to keep track of 
 
     state->Setup(mCurrentTile, mGrid, availableTiles);
 
@@ -226,23 +226,48 @@ void ATurnBasedGamePlayerController::SetMovementMode()
         auto state = NewObject<UControllerState_UI>();
         state->Setup(mWidget);
 
+        auto actionSelectedLambda = [=](FGameplayTag tag)
+        {
+            ProcessUIAction(tag);
+            // close the ui
+            if (!mWidget)
+            {
+                UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnCharacterSelected - actionSelectedLambda - invalid widget"));
+                return;
+            }
+            mWidget->CloseUI();
+
+            // revert to selection mode
+            mCurrentTile->RemoveLastState();
+            mCurrentTile->SetToSelection();
+            SetupFirstState();
+        };
+
+        // not pretty but i could not find how to add the function to the event
+        // i will never use event again (outside of this project)...dynamic multicast seems the way to go
+        state->OnActionSelected().AddLambda(actionSelectedLambda);
         mControllerState = state;
     };
 
     auto emptyTileEventLambda = [=]()
                                 {
-                                    OnTileSelect.Broadcast(GetCurrentTile());
-                                    // register to movement finished
+                                    auto disableInputs = [=]()
+                                                         {
+                                                             DisableInput(this);
+                                                         };
 
-                                    auto emptyEventsLambda = [=]
+                                    auto emptyEventsLambda = [=] ()
                                                              {
                                                                  mSelectedCharacter->OnStartedMovement().Clear();
                                                                  mSelectedCharacter->OnFinishMovement().Clear();
+                                                                 EnableInput(this);
                                                                  changeToMenuStateLambda();
                                                              };
 
-                                    mSelectedCharacter->OnFinishMovement().AddLambda(changeToMenuStateLambda);
+                                    mSelectedCharacter->OnStartedMovement().AddLambda(disableInputs);
                                     mSelectedCharacter->OnFinishMovement().AddLambda(emptyEventsLambda);
+
+                                    OnTileSelect.Broadcast(GetCurrentTile());
                                 };
 
     auto selfSelectLambda = [=]()
@@ -333,9 +358,15 @@ void ATurnBasedGamePlayerController::OnCharacterSelected()
 
 void ATurnBasedGamePlayerController::ProcessUIAction(FGameplayTag tag)
 {
-    if (tag.GetTagName() == TagConst::UI_MOVEMENT)
+    UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ProcessUIAction - activated defend"));
+    if (tag.GetTagName() == TagConst::UI_DEFEND)
     {
-        
+        if (!mSelectedCharacter)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ProcessUIAction - invalid character"));
+            return;
+        }
+        AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Defend>(mSelectedCharacter->GetAbilitySystemComponent());
     }
 }
 
