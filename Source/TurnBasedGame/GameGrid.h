@@ -61,7 +61,6 @@ public:
     int GetWidth() const { return mNbWidth; }
     int GetDepth() const { return mNbDepth; }
 
-    void LightForMovement(AGridTile* centerTile, int nbTile);
     void HideSelectors();
 
     TArray<AGridTile*> GetTiles(AGridTile* centerTile, int distanceFromTile);

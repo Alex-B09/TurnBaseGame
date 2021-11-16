@@ -82,5 +82,5 @@ protected:
 
 private:
     virtual bool IsValidPosition(AGridTile* newTile);
-    void AssignNextTile(int xChanges, int yChanges);
+    virtual void AssignNextTile(int xChanges, int yChanges);
 };

@@ -9,16 +9,16 @@
 
 #include "Abilities/GameAbility_Movement.h"
 
+#include "Helpers/TagsConst.h"
+#include "Helpers/AbilityHelper.h"
+#include "GameplaySubsystem.h"
+
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
-#include "Helpers/TagsConst.h"
-#include "Helpers/AbilityHelper.h"
-
 
 #include <string>
-#include "GameplaySubsystem.h"
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
@@ -358,15 +358,19 @@ void ATurnBasedGamePlayerController::OnCharacterSelected()
 
 void ATurnBasedGamePlayerController::ProcessUIAction(FGameplayTag tag)
 {
-    UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ProcessUIAction - activated defend"));
+    if (!mSelectedCharacter)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ProcessUIAction - invalid character"));
+        return;
+    }
+
     if (tag.GetTagName() == TagConst::UI_DEFEND)
     {
-        if (!mSelectedCharacter)
-        {
-            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ProcessUIAction - invalid character"));
-            return;
-        }
         AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Defend>(mSelectedCharacter->GetAbilitySystemComponent());
+    }
+    else if (tag.GetTagName() == TagConst::UI_ATTACK)
+    {
+        AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Attack>(mSelectedCharacter->GetAbilitySystemComponent());
     }
 }
 

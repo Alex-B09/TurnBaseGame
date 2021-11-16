@@ -171,19 +171,47 @@ AGridTile* UGameplaySubsystem::GetTile(AGameCharacter* character) const
 }
 
 
-void UGameplaySubsystem::HighlighGridForCharacter(AGameCharacter* character) const
+void UGameplaySubsystem::HighlighGridForMovement(AGameCharacter* character) const
 {
-    mGrid->LightForMovement(GetTile(character), 3);
+    // get the tiles
+    auto tiles = mGrid->GetTiles(GetTile(character), 3);
+
+    for (auto tile : tiles)
+    {
+        tile->SetToMovement();
+    }
 }
+
+void UGameplaySubsystem::HighlighGridForAttack(AGameCharacter* character) const
+{
+    // get the tiles
+    auto tiles = mGrid->GetTiles(GetTile(character), 1);
+
+    for (auto tile : tiles)
+    {
+        // TODO - add check to see if there is a character?
+        tile->SetToAttack();
+    }
+}
+
 
 void UGameplaySubsystem::HideGridHighlight() const
 {
-    mGrid->HideSelectors();
+    mGrid->HideSelectors(); // TODO - should move to subsystem?
 }
 
 TArray<AGridTile*> UGameplaySubsystem::GetAvailableMovementTiles(AGameCharacter* character)
 {
+    // TODO this need to be used in HighlighGridForCharacter
     auto tile = GetTile(character);
     auto availableTiles = mGrid->GetTiles(tile, 3); // replace the 3 to use the abilitySet
+    return availableTiles;
+}
+
+TArray<AGridTile*> UGameplaySubsystem::GetAvailableAttackTiles(AGameCharacter* character)
+{
+    // TODO this need to be used in HighlighGridForAttack
+    auto tile = GetTile(character);
+    auto availableTiles = mGrid->GetTiles(tile, 1); // replace the 1 to use the abilitySet -- if ever used
     return availableTiles;
 }

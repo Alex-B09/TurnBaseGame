@@ -9,10 +9,10 @@ UGameAbility_Defend::UGameAbility_Defend()
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UGameAbility_Defend::Setup(TSubclassOf<UGameplayEffect> defenseEffect)
-{
-    mDefenseEffect = defenseEffect;
-}
+//void UGameAbility_Defend::Setup(TSubclassOf<UGameplayEffect> defenseEffect)
+//{
+//    mDefenseEffect = defenseEffect;
+//}
 
 void UGameAbility_Defend::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {

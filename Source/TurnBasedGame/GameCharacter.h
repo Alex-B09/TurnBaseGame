@@ -7,6 +7,7 @@
 #include "GridTile.h"
 #include "Abilities/CharacterAttributes.h"
 #include "Abilities/GameplayAbility.h"
+#include "Abilities/GameAbility_Attack.h"
 #include "Abilities/GameAbility_Defend.h"
 #include "Abilities/GameAbility_Movement.h"
 
@@ -26,6 +27,9 @@ class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySyste
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameAbility_Movement> mMovementAbility;
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+        TSubclassOf<UGameAbility_Attack> mAttackAbility;
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameAbility_Defend> mDefendAbility;

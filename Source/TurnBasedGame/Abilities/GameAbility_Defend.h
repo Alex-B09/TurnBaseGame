@@ -23,8 +23,7 @@ class TURNBASEDGAME_API UGameAbility_Defend : public UGameAbilityBase
 
 public:
     UGameAbility_Defend();
-
-    void Setup(TSubclassOf<UGameplayEffect> defenseEffect);
+    //void Setup(TSubclassOf<UGameplayEffect> defenseEffect);
 
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

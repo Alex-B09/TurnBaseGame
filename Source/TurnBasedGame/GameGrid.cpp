@@ -51,7 +51,6 @@ void AGameGrid::BeginPlay()
     }
 }
 
-
 AGridTile* AGameGrid::GetTile(FGridPosition position)
 {
     int x = position.mPosX;
@@ -74,17 +73,6 @@ FGridPosition AGameGrid::GetTilePosition(AGridTile* tile)
     return FGridPosition{ x,y };
 }
 
-void AGameGrid::LightForMovement(AGridTile* centerTile, int nbTile)
-{
-    // get tile position
-    auto tiles = GetTiles(centerTile, nbTile);
-
-    for (auto tile : tiles)
-    {
-        tile->SetToMovement();
-    }
-}
-
 void AGameGrid::HideSelectors()
 {
     for (auto tile : mTiles)
@@ -100,6 +88,12 @@ std::pair<int, int> AGameGrid::GetXYPosition(int arrayPos)
 
 TArray<AGridTile*> AGameGrid::GetTiles(AGridTile* centerTile, int distanceFromTile)
 {
+    if (!centerTile || distanceFromTile <= 0)
+    {
+        UE_LOG(LogTemp, Log, TEXT("AGameGrid::GetTiles -- invalid input"));
+        return {};
+    }
+
     TArray<AGridTile*> tiles;
     int position = mTiles.Find(centerTile);
 
@@ -108,6 +102,8 @@ TArray<AGridTile*> AGameGrid::GetTiles(AGridTile* centerTile, int distanceFromTi
 
     for (int index = 0; index < mTiles.Num(); ++index)
     {
+        // its easier to go that way then to do a find for each tile
+
         auto [x, y] = GetXYPosition(index);
         int distance = FMath::Abs(x - posX) + FMath::Abs(y - posY);
         if (distance <= distanceFromTile)

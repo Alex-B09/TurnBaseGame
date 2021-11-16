@@ -62,6 +62,7 @@ public:
     void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
 
     TArray<AGridTile*> GetAvailableMovementTiles(AGameCharacter* character);
+    TArray<AGridTile*> GetAvailableAttackTiles(AGameCharacter* character);
     
     EGridTileState GetTileStatus(AGridTile* tile) const;
 
@@ -73,7 +74,10 @@ public:
 
 public:
     UFUNCTION(BlueprintCallable)
-        void HighlighGridForCharacter(AGameCharacter* character) const;
+        void HighlighGridForMovement(AGameCharacter* character) const;
+
+    UFUNCTION(BlueprintCallable)
+        void HighlighGridForAttack(AGameCharacter* character) const;
 
     UFUNCTION(BlueprintCallable)
         void HideGridHighlight() const;

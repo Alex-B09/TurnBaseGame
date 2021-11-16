@@ -9,9 +9,7 @@ void UControllerState_Movement::Setup(AGridTile* startingPosition,
 {
     
     mGrid = grid;
-
     mCurrentTile = startingPosition;
-
     mAvailableTiles = availableTiles;
 }
 
