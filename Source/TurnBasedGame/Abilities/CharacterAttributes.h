@@ -39,4 +39,16 @@ public:
 
     UFUNCTION(Category = "Attribute fonctions")
         FGameplayAttribute HealthAttribute();
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities | Stats")
+        FGameplayAttributeData DamageToApply;
+
+    UFUNCTION(Category = "Attribute fonctions")
+        FGameplayAttribute DamageToApplyAttribute();
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities | Stats")
+        FGameplayAttributeData Damage;
+
+    UFUNCTION(Category = "Attribute fonctions")
+        FGameplayAttribute DamageAttribute();
 };

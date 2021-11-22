@@ -15,7 +15,7 @@ void UControllerState_Attack::Setup(AGridTile* startingPosition,
     }
 
     mGrid = grid;
-    mCurrentTile = startingPosition;
+    mStartingTile = startingPosition;
     mAvailableTiles = availableTiles;
 }
 
@@ -26,21 +26,29 @@ bool UControllerState_Attack::IsValidPosition(AGridTile* tile)
 
 void UControllerState_Attack::AssignNextTile(int xChanges, int yChanges)
 {
-    auto gameplaySubsystem = mCurrentTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
+    auto gameplaySubsystem = mStartingTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
 
     // its a bit slow to always search in the grid...but meh
     FGridPosition pos = mGrid->GetTilePosition(mCurrentTile);
     pos.mPosX += xChanges;
     pos.mPosY += yChanges;
-    auto newTile = mGrid->GetTile(pos);
+    mCurrentTile = mGrid->GetTile(pos); // this is needed for the parent
+    
 
-
-    if (IsValidPosition(newTile) && gameplaySubsystem->GetCharacter(newTile) != nullptr)
+    if (IsValidPosition(mCurrentTile) && gameplaySubsystem->GetCharacter(mCurrentTile) != nullptr)
     {
-        TileChangedEvent.Broadcast(newTile);
+        TileChangedEvent.Broadcast(mCurrentTile);
     }
     else
     {
         SelectionErrorEvent.Broadcast();
     }
+}
+
+void UControllerState_Attack::OnAction()
+{
+    auto gameplaySubsystem = mStartingTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
+    auto enemy = gameplaySubsystem->GetEnemyCharacter();
+
+    OnEnemyCharacterSelected().Broadcast(enemy);
 }

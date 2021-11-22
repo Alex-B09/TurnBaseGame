@@ -72,6 +72,9 @@ public:
     AGridTile* GetTile(AGameCharacter* character) const;
 
 
+    // TODO remove after tests
+    AGameCharacter* GetEnemyCharacter();
+
 public:
     UFUNCTION(BlueprintCallable)
         void HighlighGridForMovement(AGameCharacter* character) const;

@@ -41,6 +41,7 @@ void UControllerState_Selecting::OnAction()
     auto world = mGrid->GetWorld();
     auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
     auto tileStatus = gameplaySubsystem->GetTileStatus(mCurrentTile);
+    auto character = gameplaySubsystem->GetCharacter(mCurrentTile);
 
     if (tileStatus == EGridTileState::Empty)
     {
@@ -50,6 +51,7 @@ void UControllerState_Selecting::OnAction()
     else if (tileStatus == EGridTileState::IsCharacterEnemy)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile enemy"));
+        OnEnemyCharacterSelectEvent.Broadcast(character);
     }
     else if (tileStatus == EGridTileState::IsCharacterPlayer)
     {

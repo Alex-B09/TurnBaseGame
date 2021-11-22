@@ -6,6 +6,7 @@
 #include "ControllerStates/ControllerState_Selecting.h"
 #include "ControllerStates/ControllerState_UI.h"
 #include "ControllerStates/ControllerState_Movement.h"
+#include "ControllerStates/ControllerState_Attack.h"
 
 #include "Abilities/GameAbility_Movement.h"
 
@@ -212,45 +213,11 @@ void ATurnBasedGamePlayerController::SetMovementMode()
 
     state->Setup(mCurrentTile, mGrid, availableTiles);
 
-    auto changeToMenuStateLambda = [=]()
-    {
-        // go to ui mode  
-        ShowActionMenu();
-
-        if (!mWidget)
-        {
-            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnCharacterSelected - invalid widget"));
-            return;
-        }
-
-        auto state = NewObject<UControllerState_UI>();
-        state->Setup(mWidget);
-
-        auto actionSelectedLambda = [=](FGameplayTag tag)
-        {
-            ProcessUIAction(tag);
-            // close the ui
-            if (!mWidget)
-            {
-                UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnCharacterSelected - actionSelectedLambda - invalid widget"));
-                return;
-            }
-            mWidget->CloseUI();
-
-            // revert to selection mode
-            mCurrentTile->RemoveLastState();
-            mCurrentTile->SetToSelection();
-            SetupFirstState();
-        };
-
-        // not pretty but i could not find how to add the function to the event
-        // i will never use event again (outside of this project)...dynamic multicast seems the way to go
-        state->OnActionSelected().AddLambda(actionSelectedLambda);
-        mControllerState = state;
-    };
-
     auto emptyTileEventLambda = [=]()
                                 {
+                                    // CAREFUL - unreal seems to have difficulties with lambda in lambda
+                                    //         - or is it c++?
+                                    //         - the problem was that, the "this" reference in the internal lambda was set to null for whatever reason 
                                     auto disableInputs = [=]()
                                                          {
                                                              DisableInput(this);
@@ -261,7 +228,7 @@ void ATurnBasedGamePlayerController::SetMovementMode()
                                                                  mSelectedCharacter->OnStartedMovement().Clear();
                                                                  mSelectedCharacter->OnFinishMovement().Clear();
                                                                  EnableInput(this);
-                                                                 changeToMenuStateLambda();
+                                                                 ChangeToActionMenu();
                                                              };
 
                                     mSelectedCharacter->OnStartedMovement().AddLambda(disableInputs);
@@ -282,7 +249,7 @@ void ATurnBasedGamePlayerController::SetMovementMode()
             return;
         }
 
-        changeToMenuStateLambda();
+        ChangeToActionMenu();
     };
 
     auto cancelEventLambda = [=]()
@@ -305,6 +272,37 @@ void ATurnBasedGamePlayerController::SetMovementMode()
                                          SwitchCurrentTile(newTile);
                                      });
 
+    mControllerState = state;
+}
+
+void ATurnBasedGamePlayerController::SetAttackMode()
+{
+    // with this i'm checking to see if it's better to let the ability control the state
+
+    UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetAttackMode - fct start"));
+
+    if (!mSelectedCharacter)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetAttackMode - invalid input"));
+        return;
+    }
+    
+    auto state = NewObject<UControllerState_Attack>();
+    state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
+    state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
+                                                {
+                                                    OnCharacterSelect.Broadcast(enemyCharacter);
+                                                });
+    
+    //state->OnTileChanged().AddLambda([=](AGridTile * tile)
+    //                                 {
+    //                                     // change the attack selection
+    //                                 });
+
+    // and need cancel lambda
+        
+    //state->
+    // hide menu?
     mControllerState = state;
 }
 
@@ -379,4 +377,42 @@ void ATurnBasedGamePlayerController::SwitchCurrentTile(AGridTile* newTile)
     mCurrentTile->RemoveLastState();
     mCurrentTile = newTile;
     WatchCurrentTile();
+}
+
+
+void ATurnBasedGamePlayerController::ChangeToActionMenu()
+{
+    // go to ui mode  
+    ShowActionMenu();
+
+    if (!mWidget)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - invalid widget"));
+        return;
+    }
+
+    auto state = NewObject<UControllerState_UI>();
+    state->Setup(mWidget);
+
+    auto actionSelectedLambda = [=](FGameplayTag tag)
+    {
+        ProcessUIAction(tag);
+        // close the ui
+        if (!mWidget)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - invalid widget"));
+            return;
+        }
+        mWidget->CloseUI();
+
+        // revert to selection mode
+        mCurrentTile->RemoveLastState();
+        mCurrentTile->SetToSelection();
+        //SetupFirstState(); -- TODO move this away
+    };
+
+    // not pretty but i could not find how to add the function to the event
+    // i will never use event again (outside of this project)...dynamic multicast seems the way to go
+    state->OnActionSelected().AddLambda(actionSelectedLambda);
+    mControllerState = state;
 }

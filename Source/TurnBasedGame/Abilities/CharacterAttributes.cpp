@@ -19,3 +19,18 @@ FGameplayAttribute UCharacterAttributes::HealthAttribute()
                                                              GET_MEMBER_NAME_CHECKED(UCharacterAttributes, Health));
     return FGameplayAttribute(property);
 }
+
+
+FGameplayAttribute UCharacterAttributes::DamageToApplyAttribute()
+{
+    static FProperty* property = FindFieldChecked<FProperty>(UCharacterAttributes::StaticClass(),
+        GET_MEMBER_NAME_CHECKED(UCharacterAttributes, DamageToApply));
+    return FGameplayAttribute(property);
+}
+
+FGameplayAttribute UCharacterAttributes::DamageAttribute()
+{
+    static FProperty* property = FindFieldChecked<FProperty>(UCharacterAttributes::StaticClass(),
+        GET_MEMBER_NAME_CHECKED(UCharacterAttributes, Damage));
+    return FGameplayAttribute(property);
+}

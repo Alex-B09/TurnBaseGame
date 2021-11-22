@@ -215,3 +215,16 @@ TArray<AGridTile*> UGameplaySubsystem::GetAvailableAttackTiles(AGameCharacter* c
     auto availableTiles = mGrid->GetTiles(tile, 1); // replace the 1 to use the abilitySet -- if ever used
     return availableTiles;
 }
+
+
+AGameCharacter* UGameplaySubsystem::GetEnemyCharacter()
+{
+    for (auto character : mCharacters)
+    {
+        if (!character->mIsPlayerCharacter)
+        {
+            return character->mCharacter;
+        }
+    }
+    return nullptr;
+}

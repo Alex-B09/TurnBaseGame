@@ -35,6 +35,9 @@ protected:
     DECLARE_EVENT(UControllerState_Selecting, FCharacterSelected)
     FCharacterSelected OnCharacterSelectEvent; 
 
+    DECLARE_EVENT_OneParam(UControllerState_Selecting, FEnemyCharacterSelected, AGameCharacter*)
+    FEnemyCharacterSelected OnEnemyCharacterSelectEvent;
+
     DECLARE_EVENT(UControllerState_Selecting, FEmptyTileSelected)
     FEmptyTileSelected OnEmtpyTileSelectEvent;
 
@@ -65,6 +68,11 @@ public:
     FCharacterSelected& OnCharacterSelected() // to subscribe to
     {
         return OnCharacterSelectEvent;
+    }
+
+    FEnemyCharacterSelected& OnEnemyCharacterSelected() // to subscribe to
+    {
+        return OnEnemyCharacterSelectEvent;
     }
 
     FEmptyTileSelected& OnEmptyTileSelected() // to subscribe to

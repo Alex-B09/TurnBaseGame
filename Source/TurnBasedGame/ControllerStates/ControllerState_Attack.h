@@ -17,11 +17,14 @@ class TURNBASEDGAME_API UControllerState_Attack : public UControllerState_Select
         
     UPROPERTY()
         TArray<AGridTile*> mAvailableTiles; // list of available movement tiles
+    UPROPERTY()
+        AGridTile* mStartingTile;
 public:
     void Setup(AGridTile * startingPosition, 
                AGameGrid* grid,
                TArray<AGridTile*> availableTiles);
 
+    void OnAction() override;
 private:
     bool IsValidPosition(AGridTile* tile) override;
     void AssignNextTile(int xChanges, int yChanges) override;

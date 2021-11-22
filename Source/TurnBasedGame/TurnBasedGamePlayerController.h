@@ -12,8 +12,14 @@
 
 #include "TurnBasedGamePlayerController.generated.h"
 
+// i have tried both event and dynamic multicast
+//  Dynamic multicast need the uproperty reflection system to work properly
+//  Event is the old C++14 way of doing things
+//  
+//  I have a slight preference for dynamic multicast since it plays well with BP (not tried too much event on that front though)
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FControllerGridSelect, AGridTile*, Tile);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FControllerCharacterSelect, AGameCharacter*, character);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FControllerCancelled);
 
 UCLASS()
@@ -42,10 +48,13 @@ public:
     ATurnBasedGamePlayerController();
 
     void SetMovementMode();
+    void SetAttackMode();
 
     // this exists for the "wait for" ability tasks
     UPROPERTY()
         FControllerGridSelect OnTileSelect;
+    UPROPERTY()
+        FControllerCharacterSelect OnCharacterSelect; // only work for enemy for now
     UPROPERTY()
         FControllerCancelled OnCancelled;
     UPROPERTY(BlueprintAssignable)
@@ -54,6 +63,9 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure)
         AGameCharacter* GetCharacter() const;
+
+    UFUNCTION(BlueprintImplementableEvent)
+        void OnSelectionError();
 
 protected:
     // Begin PlayerController interface
@@ -90,4 +102,6 @@ private:
     void ProcessUIAction(FGameplayTag tag);
 
     void SwitchCurrentTile(AGridTile* newTile);
+
+    void ChangeToActionMenu();
 };

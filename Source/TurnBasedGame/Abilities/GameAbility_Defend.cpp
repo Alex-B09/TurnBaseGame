@@ -30,7 +30,6 @@ void UGameAbility_Defend::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
         auto effect = mDefenseEffect->GetDefaultObject<UGameplayEffect>();
         ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, effect, 1, 1);
-
-        // wait for new turn -- TODO create new subsystem?
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
     }
 }
