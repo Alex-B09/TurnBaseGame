@@ -15,6 +15,7 @@ UGameAbility_Attack::UGameAbility_Attack()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
     mGameplayEventsToWaitTo.AddTag(UGameplayTagsManager::Get().RequestGameplayTag(TagConst::EVENT_WEAPONHIT));
+    mGameplayTargetEvents.AddTag(UGameplayTagsManager::Get().RequestGameplayTag(TagConst::EVENT_DAMAGEFINISH));
 }
 
 void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -69,6 +70,9 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 void UGameAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
     Cleanup();
+
+    // this seems to be important
+    // is there an "EndAbility_implementation" somewhere?
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -117,6 +121,14 @@ void UGameAbility_Attack::SelectCharacter(AGameCharacter* character)
     //  but, meh...i'm learning things
     //  thanks ARPG demo
 
+    // interesting functionnality:
+    //          if the FGameplayTagContainer is empty, it will register to all events
+    mGameplayTargetEventHandle = mTargetCharacter
+                                    ->GetAbilitySystemComponent()
+                                    ->AddGameplayEventTagContainerDelegate(mGameplayTargetEvents,
+                                                                           FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this,
+                                                                                                                                        &UGameAbility_Attack::HandleEventTarget));
+
     HandleVisual();
 }
 
@@ -136,12 +148,11 @@ void UGameAbility_Attack::AttackCancelled()
     // TODO - return to menu
     // must need something like a stack of controller state.
     // this is not going to be easy...
-    
 }
 
 void UGameAbility_Attack::ApplyDamageEvent()
 {
-    UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::ApplyDamageEvent - WOOOOOOOOOOOOOOOOOOT"));
+    UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::ApplyDamageEvent"));
     
     // clean up
     CurrentActorInfo->AbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(mGameplayEventsToWaitTo, mGameplayEventHandle);
@@ -157,7 +168,12 @@ void UGameAbility_Attack::ApplyDamageEvent()
 
 void UGameAbility_Attack::VisualDone()
 {
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+    mVisualDone = true;
+
+    if (mVisualDone && mTargetFinishedLogic)
+    {
+        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+    }
 }
 
 void UGameAbility_Attack::HandleEvent(FGameplayTag EventTag, const FGameplayEventData* Payload)
@@ -166,9 +182,30 @@ void UGameAbility_Attack::HandleEvent(FGameplayTag EventTag, const FGameplayEven
     ApplyDamageEvent();
 }
 
+void UGameAbility_Attack::HandleEventTarget(FGameplayTag EventTag, const FGameplayEventData* Payload)
+{
+    // should only be called for "Receive damage done"
+    UE_LOG(LogTemp, Log, TEXT("---------------- in UGameAbility_Attack::HandleEventTarget -- %s"), *(EventTag.GetTagName()).ToString());
+
+    mTargetFinishedLogic = true;
+
+    if (mVisualDone && mTargetFinishedLogic)
+    {
+        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+    }
+}
+
 void UGameAbility_Attack::Cleanup()
 {
-    auto controller = Cast<ATurnBasedGamePlayerController>(GetWorld()->GetFirstPlayerController());
-    controller->OnCharacterSelect.RemoveDynamic(this, &UGameAbility_Attack::SelectCharacter);
+    if (auto controller = Cast<ATurnBasedGamePlayerController>(GetWorld()->GetFirstPlayerController()))
+    {
+        controller->OnCharacterSelect.RemoveDynamic(this, &UGameAbility_Attack::SelectCharacter);
+    }
+
     CurrentActorInfo->AbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(mGameplayEventsToWaitTo, mGameplayEventHandle);
+
+    if (mTargetCharacter)
+    {
+        mTargetCharacter->GetAbilitySystemComponent()->RemoveGameplayEventTagContainerDelegate(mGameplayTargetEvents, mGameplayTargetEventHandle);
+    }
 }

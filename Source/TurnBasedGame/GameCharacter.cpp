@@ -34,9 +34,8 @@ void AGameCharacter::BeginPlay()
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mMovementAbility.GetDefaultObject(), 0));
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mAttackAbility.GetDefaultObject(), 0));
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mDefendAbility.GetDefaultObject(), 0));
+        mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mReceiveDamageAbility.GetDefaultObject(), 0));
     }
-
-
 }
 
 // Called every frame
@@ -48,6 +47,11 @@ void AGameCharacter::Tick(float DeltaTime)
 UAbilitySystemComponent* AGameCharacter::GetAbilitySystemComponent() const
 {
     return mAbilitySystem;
+}
+
+UCharacterAttributes* AGameCharacter::GetAttributes() const
+{
+    return mAttributes;
 }
 
 void AGameCharacter::MovementStarted()

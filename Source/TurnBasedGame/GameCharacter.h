@@ -10,6 +10,7 @@
 #include "Abilities/GameAbility_Attack.h"
 #include "Abilities/GameAbility_Defend.h"
 #include "Abilities/GameAbility_Movement.h"
+#include "Abilities/GameAbility_ReceiveDamage.h"
 
 
 #include "AbilitySystemComponent.h"
@@ -34,6 +35,11 @@ class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySyste
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameAbility_Defend> mDefendAbility;
 
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+        TSubclassOf<UGameAbility_ReceiveDamage> mReceiveDamageAbility;
+
+    //UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
+
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities | Data", meta = (AllowPrivateAccess = true))
         UDataTable * mInitialAttributes;
 
@@ -56,6 +62,7 @@ public:
         void Move(AGridTile* currentTile, const TArray<AGridTile*>& tilesToGo);
 
     UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+    UCharacterAttributes* GetAttributes() const;
 
     // attack
 

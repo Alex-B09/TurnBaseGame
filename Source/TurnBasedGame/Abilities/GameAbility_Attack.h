@@ -29,6 +29,14 @@ class TURNBASEDGAME_API UGameAbility_Attack : public UGameAbilityBase
         FGameplayTagContainer mGameplayEventsToWaitTo;
     FDelegateHandle mGameplayEventHandle;
 
+
+    UPROPERTY()
+        FGameplayTagContainer mGameplayTargetEvents;
+    FDelegateHandle mGameplayTargetEventHandle;
+
+    bool mVisualDone = false;
+    bool mTargetFinishedLogic = false;
+
 public:
     UGameAbility_Attack();
 
@@ -61,6 +69,7 @@ protected:
 
 private:
     void HandleEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
+    void HandleEventTarget(FGameplayTag EventTag, const FGameplayEventData* Payload);
 
     void Cleanup();
 };

@@ -12,6 +12,7 @@ namespace TagConst
     const FName DURATION_NEWTURN(TEXT("Duration.NewTurn"));
 
     const FName EVENT_DMGRECEIVED(TEXT("Event.DamageReceived"));
+    const FName EVENT_DAMAGEFINISH(TEXT("Event.DamageFinish"));
     const FName EVENT_DIE(TEXT("Event.Die"));
     const FName EVENT_WEAPONHIT(TEXT("Event.WeaponHit"));
 }
