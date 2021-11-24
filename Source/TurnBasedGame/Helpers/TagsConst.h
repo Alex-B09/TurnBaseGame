@@ -2,6 +2,11 @@
 
 #include "CoreMinimal.h"
 
+// TODO -   can i make this automaticaly
+//          what i hope to do is make a python script (or a plugin) that reads the event in Config/DefaultGameplayTags.ini
+//          and generate this file
+//          this should be somewhat easy --- famous last words
+
 namespace TagConst
 {
     const FName UI_NOACTION(TEXT("UI.NoAction"));

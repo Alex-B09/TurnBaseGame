@@ -29,12 +29,13 @@ void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass
 
     auto transform = tile->GetCharacterPosition();
     auto characterActor = Cast<AGameCharacter>(GetWorld()->SpawnActor(characterClass, &transform, FActorSpawnParameters()));
-    characterActor->SpawnDefaultController();
+    characterActor->SpawnDefaultController(); // TODO - test if i still need this
     auto info = NewObject<UCharacterGridInfo>();
 
     if (characterActor == nullptr || info == nullptr)
     {
         UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::AddCharacter - invalid object -- need debug"));
+        return;
     }
 
     info->mCharacter = characterActor;
@@ -44,26 +45,24 @@ void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass
     mCharacters.Add(info);
 }
 
-EGridTileState UGameplaySubsystem::GetTileStatus(AGridTile* tile) const
+ETileOccupationState UGameplaySubsystem::GetTileOccupationStatus(AGridTile* tile) const
 {
     if (!tile)
     {
         UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetTileStatus - invalid tile"));
-        return EGridTileState::Empty; // TODO - add error?
+        return ETileOccupationState::Empty; // TODO - add error?
     }
-
-    // search the mCharacters for the time
 
     if (auto info = GetGridInfo(tile))
     {
         if (info->mIsPlayerCharacter)
         {
-            return EGridTileState::IsCharacterPlayer;
+            return ETileOccupationState::IsCharacterPlayer;
         }
-        return EGridTileState::IsCharacterEnemy;
+        return ETileOccupationState::IsCharacterEnemy;
     }
 
-    return EGridTileState::Empty;
+    return ETileOccupationState::Empty;
 }
 
 UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGridTile* tile) const

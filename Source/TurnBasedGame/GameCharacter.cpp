@@ -8,7 +8,7 @@
 AGameCharacter::AGameCharacter()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
     mAbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
 
     //mAttributes = NewObject<UCharacterAttributes>(this);
@@ -29,8 +29,6 @@ void AGameCharacter::BeginPlay()
             mAttributes->InitFromMetaDataTable(mInitialAttributes);
         }
 
-        //auto specHandle = AbilitySystem->GiveAbility(FGameplayAbilitySpec(ability.GetDefaultObject(), 1, 0));
-
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mMovementAbility.GetDefaultObject(), 0));
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mAttackAbility.GetDefaultObject(), 0));
         mAbilitySystem->GiveAbility(FGameplayAbilitySpec(mDefendAbility.GetDefaultObject(), 0));
@@ -41,6 +39,7 @@ void AGameCharacter::BeginPlay()
 // Called every frame
 void AGameCharacter::Tick(float DeltaTime)
 {
+    // set to false in the ctor
     Super::Tick(DeltaTime);
 }
 

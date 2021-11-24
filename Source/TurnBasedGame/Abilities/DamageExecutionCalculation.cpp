@@ -11,15 +11,23 @@ UDamageExecutionCalculation::UDamageExecutionCalculation(const FObjectInitialize
 
     // invalid here signifies that we cannot add modifier in BP (or c++).
     // we just take the value from the attribute set
-    //InvalidScopedModifierAttributes.Add(attributes.HealthDef);
+    
+    // to set it to "not modifiable", we need to add it to both the relevant and the invalid
+    //      RelevantAttributesToCapture.Add(attributes.HealthDef);
+    //      InvalidScopedModifierAttributes.Add(attributes.HealthDef);
+    // this basicaly says: we need it (RelevantAttributes) but we dont want to modify it through external modifiers (InvalideScoped)
 
-    // for some reason, the InvalidScopedModifierAttributes did not work...TODO check that later
     RelevantAttributesToCapture.Add(attributes.HealthDef);
-    RelevantAttributesToCapture.Add(attributes.DamageToApplyDef);
-    RelevantAttributesToCapture.Add(attributes.DefenseDef);
+    InvalidScopedModifierAttributes.Add(attributes.HealthDef);
 
-    // we let the ability to add modifier -- i.e it is available in BP
+    RelevantAttributesToCapture.Add(attributes.DamageToApplyDef);
+    InvalidScopedModifierAttributes.Add(attributes.DamageToApplyDef);
+
     RelevantAttributesToCapture.Add(attributes.DamageDef);
+    InvalidScopedModifierAttributes.Add(attributes.DamageDef);
+
+    RelevantAttributesToCapture.Add(attributes.DefenseDef);
+    InvalidScopedModifierAttributes.Add(attributes.DefenseDef);
 }
 
 void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
@@ -28,11 +36,13 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
     AttributeStruct attributes;
 
     auto& specs = ExecutionParams.GetOwningSpec();
-    auto targetAS = ExecutionParams.GetTargetAbilitySystemComponent();
-    auto sourceAS = ExecutionParams.GetSourceAbilitySystemComponent();
 
-    auto targetActor = Cast<AGameCharacter>(targetAS->GetAvatarActor());
-    auto sourceActor = Cast<AGameCharacter>(sourceAS->GetAvatarActor());
+    // not needed but kept here for documentation
+    //auto targetAS = ExecutionParams.GetTargetAbilitySystemComponent();
+    //auto sourceAS = ExecutionParams.GetSourceAbilitySystemComponent();
+
+    //auto targetActor = Cast<AGameCharacter>(targetAS->GetAvatarActor());
+    //auto sourceActor = Cast<AGameCharacter>(sourceAS->GetAvatarActor());
 
     const auto targetTags = specs.CapturedTargetTags.GetAggregatedTags();
     const auto sourceTags = specs.CapturedSourceTags.GetAggregatedTags();
@@ -42,12 +52,18 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
     evaluationParams.TargetTags = targetTags;
     evaluationParams.SourceTags = sourceTags;
 
-    auto test1 = GetAttributeCaptureDefinitions();
-
     float health = 0.f;
     float defense = 0.f;
     float dmg = 0.f;
 
+    // theoricaly, we could get those without the AttemptCalculateCapturedAttributeMagnitude
+    // you can just get the ability system, the attributes and be done with it
+    //auto sourceActor = Cast<AGameCharacter>(ExecutionParams.GetSourceAbilitySystemComponent()->GetAvatarActor());
+    //auto health = sourceActor->GetAttributes()->Health.GetCurrentValue(); // the GetAttribute comes from my framework (not GAS)
+
+    
+    // but this is easier and not too costly
+    // and, to be honest, it's always better to stay in the GAS framework when working with the GAS
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(attributes.HealthDef, evaluationParams, health);
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(attributes.DefenseDef, evaluationParams, defense);
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(attributes.DamageDef, evaluationParams, dmg);
@@ -55,6 +71,7 @@ void UDamageExecutionCalculation::Execute_Implementation(const FGameplayEffectCu
     float totalDamage = FMath::Max(0.f, dmg - defense);
     totalDamage = FMath::Min(health, totalDamage); // dont do more then the remaning health
 
+    // setup the outputs
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(attributes.DamageToApplyProperty, EGameplayModOp::Override, totalDamage));
     OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(attributes.HealthProperty, EGameplayModOp::Additive, -totalDamage));
 }

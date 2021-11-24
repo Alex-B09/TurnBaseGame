@@ -26,6 +26,11 @@ class TURNBASEDGAME_API UCharacterAttributes : public UAttributeSet
 	GENERATED_BODY()
 
 public:	
+    // theoricaly, i would want to do this:
+    //  ATTRIBUTE_ACCESSORS(UCharacterAttributes, Health)
+
+
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abilities | Stats")
         FGameplayAttributeData Defense;
 

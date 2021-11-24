@@ -8,7 +8,7 @@
 
 #include "DamageExecutionCalculation.generated.h"
 
-
+// things needed for this calculation
 struct AttributeStruct
 {
     DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
@@ -41,7 +41,7 @@ class TURNBASEDGAME_API UDamageExecutionCalculation : public UGameplayEffectExec
 
 
 public:
-    // the ctor will 
+    // the ctor will setup what to catch
     UDamageExecutionCalculation(const FObjectInitializer& objectInitializer);
 
     void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;

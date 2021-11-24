@@ -12,7 +12,7 @@
 #include "GameplaySubsystem.generated.h"
 
 UENUM()
-enum class EGridTileState : uint8
+enum class ETileOccupationState : uint8
 {
     Empty,
     IsCharacterPlayer,
@@ -43,6 +43,12 @@ public:
 UCLASS()
 class TURNBASEDGAME_API UGameplaySubsystem : public UWorldSubsystem
 {
+    // Subsystem are awesome
+    //  they got automatic casting in BP and C++
+    //  you just need the "GetWorld" and you can get the subsystem
+    //  
+    //  The subsystems give you the ability to have a cleaner architecture by putting related function together
+
     GENERATED_BODY()
 
 private:
@@ -52,6 +58,7 @@ private:
     UPROPERTY()
         AGameGrid* mGrid;
 
+    // TODO - use in the near future
     //UPROPERTY()
     //	TArray<AGameCharacter> mPlayerCharacters;
     //UPROPERTY()
@@ -64,13 +71,9 @@ public:
     TArray<AGridTile*> GetAvailableMovementTiles(AGameCharacter* character);
     TArray<AGridTile*> GetAvailableAttackTiles(AGameCharacter* character);
     
-    EGridTileState GetTileStatus(AGridTile* tile) const;
-
-    UFUNCTION(BlueprintCallable)
-        AGameCharacter* GetCharacter(AGridTile* tile) const;
+    ETileOccupationState GetTileOccupationStatus(AGridTile* tile) const;
 
     AGridTile* GetTile(AGameCharacter* character) const;
-
 
     // TODO remove after tests
     AGameCharacter* GetEnemyCharacter();
@@ -88,6 +91,8 @@ public:
     UFUNCTION(BlueprintCallable)
         void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
 
+    UFUNCTION(BlueprintCallable)
+        AGameCharacter* GetCharacter(AGridTile* tile) const;
 
 private:
     UCharacterGridInfo* GetGridInfo(AGridTile* tile) const;

@@ -40,20 +40,20 @@ void UControllerState_Selecting::OnAction()
 {
     auto world = mGrid->GetWorld();
     auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-    auto tileStatus = gameplaySubsystem->GetTileStatus(mCurrentTile);
+    auto tileStatus = gameplaySubsystem->GetTileOccupationStatus(mCurrentTile);
     auto character = gameplaySubsystem->GetCharacter(mCurrentTile);
 
-    if (tileStatus == EGridTileState::Empty)
+    if (tileStatus == ETileOccupationState::Empty)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile Empty"));
         OnEmptyTileSelected().Broadcast();
     }
-    else if (tileStatus == EGridTileState::IsCharacterEnemy)
+    else if (tileStatus == ETileOccupationState::IsCharacterEnemy)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile enemy"));
         OnEnemyCharacterSelectEvent.Broadcast(character);
     }
-    else if (tileStatus == EGridTileState::IsCharacterPlayer)
+    else if (tileStatus == ETileOccupationState::IsCharacterPlayer)
     {
         UE_LOG(LogTemp, Log, TEXT("Tile character"));
         OnCharacterSelectEvent.Broadcast();

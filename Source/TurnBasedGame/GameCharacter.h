@@ -23,6 +23,7 @@ class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySyste
     GENERATED_BODY()
 
 
+    // GAS section
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         UAbilitySystemComponent* mAbilitySystem;
 
@@ -38,12 +39,9 @@ class TURNBASEDGAME_API AGameCharacter : public ACharacter, public IAbilitySyste
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameAbility_ReceiveDamage> mReceiveDamageAbility;
 
-    //UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = true))
-
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Abilities | Data", meta = (AllowPrivateAccess = true))
         UDataTable * mInitialAttributes;
-
-    UPROPERTY()
+    UPROPERTY() // not shared with BP -- there is a function for that
         UCharacterAttributes* mAttributes;
 
 public:
@@ -55,7 +53,7 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    // Called every frame
+    // Called every frame -- this should not be called
     virtual void Tick(float DeltaTime) override;
 
     UFUNCTION(BlueprintImplementableEvent)
@@ -64,20 +62,13 @@ public:
     UAbilitySystemComponent* GetAbilitySystemComponent() const override;
     UCharacterAttributes* GetAttributes() const;
 
-    // attack
+    UFUNCTION(BlueprintCallable)
+        void MovementStarted();
+    UFUNCTION(BlueprintCallable)
+        void MovementFinished();
 
-    // magic
-
-    // move
-
-    // get stats (hp and whatnot)
-
-    // abilities?
-
-
-
-    // events
 protected:
+    // events
     DECLARE_EVENT(AGameCharacter, FCharacterMovement)
     FCharacterMovement StartedMovementEvent;
     FCharacterMovement FinishedMovementEvent;
@@ -92,10 +83,4 @@ public:
     {
         return FinishedMovementEvent;
     }
-
-
-    UFUNCTION(BlueprintCallable)
-        void MovementStarted();
-    UFUNCTION(BlueprintCallable)
-        void MovementFinished();
 };

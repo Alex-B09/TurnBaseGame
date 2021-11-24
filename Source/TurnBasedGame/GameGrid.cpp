@@ -18,7 +18,6 @@ void AGameGrid::BeginPlay()
 
     GetWorld()->GetSubsystem<UGameplaySubsystem>()->SetupGrid(this);
 
-
     TArray<UChildActorComponent*> components;
     GetComponents<UChildActorComponent>(components);
 
@@ -68,7 +67,7 @@ FGridPosition AGameGrid::GetTilePosition(AGridTile* tile)
 {
     // get index first
     int index = mTiles.Find(tile);
-    auto [x, y] = GetXYPosition(index);
+    auto [x, y] = GetXYPosition(index); // need C++17 to work -- check TurnBasedGame.Build.cs
 
     return FGridPosition{ x,y };
 }
@@ -77,7 +76,10 @@ void AGameGrid::HideSelectors()
 {
     for (auto tile : mTiles)
     {
-        tile->RemoveLastState();
+        // the selectors should be the last state
+        // this will be a bit problematic in the future
+        // having a predetermined function to remove the selector should be the way to go
+        tile->RemoveLastState(); 
     }
 }
 

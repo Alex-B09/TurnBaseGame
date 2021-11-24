@@ -12,7 +12,7 @@
 #include "GameGrid.generated.h"
 
 
-
+// BP information for positioning characters
 USTRUCT(BlueprintType)
 struct FStartinPosition
 {
@@ -20,9 +20,9 @@ struct FStartinPosition
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Starting Position"))
         FGridPosition mGridPosition;
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "IsPlayerControlled"))
-        bool mIsPlayerControlled;
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "GameCharacters"))
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Is Player Controlled"))
+        bool mIsPlayerControlled; // true if the player can act with it
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "Character Class"))
         TSubclassOf<AGameCharacter> mCharacter;
 };
 
@@ -33,19 +33,17 @@ class TURNBASEDGAME_API AGameGrid : public AActor
     GENERATED_BODY()
 
 private:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareWidth"))
+    // grid dimension
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic | dimension", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareWidth"))
         int mNbWidth; // x
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic | dimension", meta = (AllowPrivateAccess = true, DisplayName = "NbSquareDepth"))
         int mNbDepth; // y
+
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Tiles"))
         TArray<AGridTile*> mTiles;
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "TileActorClass"))
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Tile Class"))
         TSubclassOf<AGridTile> mTileActorClass;
-
-    UPROPERTY()
-        AGridTile* mSelectedTile;
-
 
     // Character and position -- this should be in the GameMode
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GameplayLogic", meta = (AllowPrivateAccess = true, DisplayName = "Characters"))
@@ -72,5 +70,5 @@ protected:
 
 
 private:
-    std::pair<int, int> GetXYPosition(int arrayPos);
+    std::pair<int, int> GetXYPosition(int arrayPos); // easier to use pair then to create a new struct
 };

@@ -18,6 +18,10 @@ FGameplayAttribute UCharacterAttributes::HealthAttribute()
     static FProperty* property = FindFieldChecked<FProperty>(UCharacterAttributes::StaticClass(),
                                                              GET_MEMBER_NAME_CHECKED(UCharacterAttributes, Health));
     return FGameplayAttribute(property);
+    
+    // or -- explicit conversion
+    //  return property;
+
 }
 
 
