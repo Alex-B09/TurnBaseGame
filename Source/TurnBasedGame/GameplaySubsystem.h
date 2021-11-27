@@ -92,6 +92,9 @@ public:
         void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
 
     UFUNCTION(BlueprintCallable)
+        void TeleportCharacter(AGameCharacter* character, AGridTile* tileToTeleportTo);
+
+    UFUNCTION(BlueprintCallable)
         AGameCharacter* GetCharacter(AGridTile* tile) const;
 
 private:

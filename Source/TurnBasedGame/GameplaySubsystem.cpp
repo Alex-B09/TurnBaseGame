@@ -132,6 +132,32 @@ void UGameplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* til
     }
 }
 
+void UGameplaySubsystem::TeleportCharacter(AGameCharacter* character, AGridTile* tileToTeleportTo)
+{
+    UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::TeleportCharacter - teleporting character"));
+
+    // verify if null
+    if (character == nullptr || tileToTeleportTo == nullptr)
+    {
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::TeleportCharacter - invalid input"));
+        return;
+    }
+
+    // get info
+    if (auto info = GetGridInfo(character))
+    {
+        if (info->mTile != tileToTeleportTo)
+        {
+            info->mCharacter->Teleport(tileToTeleportTo);
+            info->mTile = tileToTeleportTo;
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::TeleportCharacter - character not found"));
+    }
+}
+
 AGameCharacter* UGameplaySubsystem::GetCharacter(AGridTile* tile) const
 {
     if (tile == nullptr)

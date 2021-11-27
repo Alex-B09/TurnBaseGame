@@ -35,7 +35,6 @@ void UTBG_WaitForTileSelection::Activate()
         return;
     }
 
-    controller->SetMovementMode();
     controller->OnTileSelect.AddDynamic(this, &UTBG_WaitForTileSelection::OnTileSelected);
     controller->OnCancelled.AddDynamic(this, &UTBG_WaitForTileSelection::OnCancelled);
 }

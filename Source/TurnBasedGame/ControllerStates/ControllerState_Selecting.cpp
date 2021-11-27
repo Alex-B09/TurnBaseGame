@@ -60,11 +60,6 @@ void UControllerState_Selecting::OnAction()
     }
 }
 
-void UControllerState_Selecting::OnCancel()
-{
-    CancelSelectedEvent.Broadcast();
-}
-
 bool UControllerState_Selecting::IsValidPosition(AGridTile * newTile)
 {
     return newTile != nullptr;
@@ -87,4 +82,15 @@ void UControllerState_Selecting::AssignNextTile(int xChanges, int yChanges)
     {
         SelectionErrorEvent.Broadcast();
     }
+}
+
+void UControllerState_Selecting::RevertToTile(AGridTile* tile)
+{
+    if (!tile)
+    {
+        UE_LOG(LogTemp, Log, TEXT("UControllerState_Selecting::RevertToTile - invalid tile"));
+        return;
+    }
+
+    mCurrentTile = tile;
 }

@@ -43,11 +43,13 @@ private:
         UInputWidget* mWidget;
 
     UPROPERTY()
-        UControllerStateBase* mControllerState;
+        TArray<UControllerStateBase*> mStateStack;
+
 public:
     ATurnBasedGamePlayerController();
 
-    void SetMovementMode();
+    UFUNCTION(BlueprintCallable)
+        void SetMovementMode();
     void SetAttackMode();
 
     // this exists for the "wait for" ability tasks
@@ -55,7 +57,7 @@ public:
         FControllerGridSelect OnTileSelect;
     UPROPERTY()
         FControllerCharacterSelect OnCharacterSelect; // only work for enemy for now
-    UPROPERTY()
+    UPROPERTY(BlueprintAssignable)
         FControllerCancelled OnCancelled;
     UPROPERTY(BlueprintAssignable)
         FControllerGridSelect OnTileChanged;
@@ -97,11 +99,14 @@ private:
     void WatchCurrentTile();
     AGridTile* GetCurrentTile() const;
 
-    void SetupFirstState();
+    UControllerStateBase* GetDefaultState();
     void OnCharacterSelected();
     void ProcessUIAction(FGameplayTag tag);
 
     void SwitchCurrentTile(AGridTile* newTile);
 
     void ChangeToActionMenu();
+
+    UControllerStateBase* GetState();
+    void RemoveState(UControllerStateBase* toRemove);
 };

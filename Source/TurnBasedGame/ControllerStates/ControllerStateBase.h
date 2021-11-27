@@ -24,7 +24,34 @@ public:
     virtual void OnMoveRight() {}
     virtual void OnMoveLeft() {}
     virtual void OnAction() {}
-    virtual void OnCancel() {}
+
+    virtual void OnCancel() 
+    {
+        CancelSelectedEvent.Broadcast();
+    }
+
+protected:
+    DECLARE_EVENT(UControllerStateBase, FCancelSelected)
+    FCancelSelected CancelSelectedEvent;
+
+    DECLARE_EVENT(UControllerStateBase, FStateResumed)
+    FStateResumed StateResumeEvent;
+
+public:
+    FCancelSelected& OnCancelSelected() // to subscribe to
+    {
+        return CancelSelectedEvent;
+    }
+
+    FStateResumed& OnStateResumed() // to subscribe to
+    {
+        return StateResumeEvent;
+    }
+
+    void ResumeState()
+    {
+        StateResumeEvent.Broadcast();
+    }
 
 private:
 };

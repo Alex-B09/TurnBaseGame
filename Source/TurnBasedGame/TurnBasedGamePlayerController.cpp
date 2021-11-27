@@ -19,13 +19,11 @@
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
-#include <string>
-
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
 {
-    bShowMouseCursor = true;
-    DefaultMouseCursor = EMouseCursor::Crosshairs;
+    bShowMouseCursor = false;
+    //PrimaryActorTick.bCanEverTick = false; // TODO - test this
 }
 
 void ATurnBasedGamePlayerController::BeginPlay()
@@ -56,7 +54,7 @@ void ATurnBasedGamePlayerController::BeginPlay()
         return;
     }
 
-    SetupFirstState();
+    mStateStack.Add(GetDefaultState());
     WatchCurrentTile();
 }
 
@@ -82,78 +80,84 @@ void ATurnBasedGamePlayerController::OnMoveUp()
 {
     UE_LOG(LogTemp, Log, TEXT("Move up"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnMoveUp - state error"));
         return;
     }
 
-    mControllerState->OnMoveUp();
+    state->OnMoveUp();
 }
 
 void ATurnBasedGamePlayerController::OnMoveDown()
 {
     UE_LOG(LogTemp, Log, TEXT("Move down"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnMoveDown - state error"));
         return;
     }
 
-    mControllerState->OnMoveDown();
+    state->OnMoveDown();
 }
 
 void ATurnBasedGamePlayerController::OnMoveLeft()
 {
     UE_LOG(LogTemp, Log, TEXT("Move left"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnMoveLeft - state error"));
         return;
     }
 
-    mControllerState->OnMoveLeft();
+    state->OnMoveLeft();
 }
 
 void ATurnBasedGamePlayerController::OnMoveRight()
 {
     UE_LOG(LogTemp, Log, TEXT("Move Right"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnMoveRight - state error"));
         return;
     }
 
-    mControllerState->OnMoveRight();
+    state->OnMoveRight();
 }
 
 void ATurnBasedGamePlayerController::OnAction()
 {
     UE_LOG(LogTemp, Log, TEXT("Action"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnAction - state error"));
         return;
     }
 
-    mControllerState->OnAction();
+    state->OnAction();
 }
 
 void ATurnBasedGamePlayerController::OnCancel()
 {
     UE_LOG(LogTemp, Log, TEXT("Cancel"));
 
-    if (!mControllerState)
+    auto state = GetState();
+    if (!state)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnCancel - state error"));
         return;
     }
 
-    mControllerState->OnCancel();
+    state->OnCancel();
 }
 
 void ATurnBasedGamePlayerController::WatchCurrentTile()
@@ -192,24 +196,28 @@ void ATurnBasedGamePlayerController::SetUIWidget(UInputWidget* widget)
     mWidget = widget;
 }
 
-
 void ATurnBasedGamePlayerController::SetMovementMode()
 {
+    // TODO - check if already in movement mode
+    auto currentState = GetState();
+
+    if (Cast<UControllerState_Movement>(currentState))
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetMovementMode - already in movement, nothing to do"));
+        return;
+    }
+
     if (!mSelectedCharacter)
     {
         UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetMovementMode - invalid input"));
         return;
     }
 
-    // activate ability
-    auto abilities = mSelectedCharacter->GetAbilitySystemComponent()->GetActivatableAbilities();
-    AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Movement>(mSelectedCharacter->GetAbilitySystemComponent());
-
     auto state = NewObject<UControllerState_Movement>();
 
     auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
     auto availableTiles = gameplaySubsystem->GetAvailableMovementTiles(mSelectedCharacter);
-    auto tile = mCurrentTile; // usefull to keep track of 
+    auto startingTile = mCurrentTile; // usefull to keep track of 
 
     state->Setup(mCurrentTile, mGrid, availableTiles);
 
@@ -220,7 +228,9 @@ void ATurnBasedGamePlayerController::SetMovementMode()
                                     //         - the problem was that, the "this" reference in the internal lambda was set to null for whatever reason 
                                     auto disableInputs = [=]()
                                                          {
-                                                             DisableInput(this);
+                                                             //InputEnabled = false; // this does not work
+                                                             DisableInput(this); // this does work...maybe its because of the "explicit" this
+                                                             // https://www.nextptr.com/tutorial/ta1430524603/capture-this-in-lambda-expression-timeline-of-change 
                                                          };
 
                                     auto emptyEventsLambda = [=] ()
@@ -228,6 +238,7 @@ void ATurnBasedGamePlayerController::SetMovementMode()
                                                                  mSelectedCharacter->OnStartedMovement().Clear();
                                                                  mSelectedCharacter->OnFinishMovement().Clear();
                                                                  EnableInput(this);
+                                                                 
                                                                  ChangeToActionMenu();
                                                              };
 
@@ -254,25 +265,42 @@ void ATurnBasedGamePlayerController::SetMovementMode()
 
     auto cancelEventLambda = [=]()
                              {
-                                 OnCancelled.Broadcast();
+                                 if (mCurrentTile == startingTile) // cancel if same tile
+                                 {
+                                     OnCancelled.Broadcast(); // this will cancel the action and hide tiles
 
-                                 mCurrentTile = tile;
-                                 tile->SetToCharacterSelected();
-                                 WatchCurrentTile();
-
-                                 SetupFirstState();
+                                     startingTile->RemoveAllState();
+                                     WatchCurrentTile();
+                                     RemoveState(state);
+                                 }
+                                 else
+                                 {
+                                     SwitchCurrentTile(startingTile);
+                                     state->RevertToTile(startingTile);
+                                 }
                              };
+
+    auto revertToLambda = [=]()
+                            {
+                                // just start the ability
+                                // teleport character to start character
+                                gameplaySubsystem->TeleportCharacter(mSelectedCharacter, startingTile);
+                                SwitchCurrentTile(startingTile);
+                                state->RevertToTile(startingTile);
+                                AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Movement>(mSelectedCharacter->GetAbilitySystemComponent());
+                            };
 
     state->OnEmptyTileSelected().AddLambda(emptyTileEventLambda);
     state->OnCancelSelected().AddLambda(cancelEventLambda);
     state->OnCharacterSelected().AddLambda(selfSelectLambda);
+    state->OnStateResumed().AddLambda(revertToLambda);
 
     state->OnTileChanged().AddLambda([=](AGridTile* newTile)
                                      {
                                          SwitchCurrentTile(newTile);
                                      });
 
-    mControllerState = state;
+    mStateStack.Add(state);
 }
 
 void ATurnBasedGamePlayerController::SetAttackMode()
@@ -287,26 +315,26 @@ void ATurnBasedGamePlayerController::SetAttackMode()
         return;
     }
     
-    auto state = NewObject<UControllerState_Attack>();
-    state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
-    state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
-                                                {
-                                                    OnCharacterSelect.Broadcast(enemyCharacter);
-                                                });
-    
-    //state->OnTileChanged().AddLambda([=](AGridTile * tile)
-    //                                 {
-    //                                     // change the attack selection
-    //                                 });
+    //auto state = NewObject<UControllerState_Attack>();
+    //state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
+    //state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
+    //                                            {
+    //                                                OnCharacterSelect.Broadcast(enemyCharacter);
+    //                                            });
+    //
+    ////state->OnTileChanged().AddLambda([=](AGridTile * tile)
+    ////                                 {
+    ////                                     // change the attack selection
+    ////                                 });
 
-    // and need cancel lambda
-        
-    //state->
-    // hide menu?
-    mControllerState = state;
+    //// and need cancel lambda
+    //    
+    ////state->
+    //// hide menu?
+    //mControllerState = state;
 }
 
-void ATurnBasedGamePlayerController::SetupFirstState()
+UControllerStateBase* ATurnBasedGamePlayerController::GetDefaultState()
 {
     UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetupNewState - setup basic selection state"));
     
@@ -324,8 +352,7 @@ void ATurnBasedGamePlayerController::SetupFirstState()
                                            {
                                                OnCharacterSelected();
                                            });
-
-    mControllerState = state;
+    return state;
 }
 
 void ATurnBasedGamePlayerController::OnCharacterSelected()
@@ -347,11 +374,11 @@ void ATurnBasedGamePlayerController::OnCharacterSelected()
     }
 
 
+    // launch action
+    //SetMovementMode();
 
-    SetMovementMode();
-
-    //// setup new state
-    
+    // activate ability
+    AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Movement>(mSelectedCharacter->GetAbilitySystemComponent());
 }
 
 void ATurnBasedGamePlayerController::ProcessUIAction(FGameplayTag tag)
@@ -400,19 +427,78 @@ void ATurnBasedGamePlayerController::ChangeToActionMenu()
         // close the ui
         if (!mWidget)
         {
-            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - invalid widget"));
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - actionSelectedLambda - invalid widget"));
             return;
         }
-        mWidget->CloseUI();
+        mWidget->HideUI();
 
         // revert to selection mode
         mCurrentTile->RemoveLastState();
         mCurrentTile->SetToSelection();
-        //SetupFirstState(); -- TODO move this away
+    };
+
+    auto cancelLambda = [=]()
+    {
+        // hide menu
+        if (!mWidget)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - cancelLambda - invalid widget"));
+            return;
+        }
+        mWidget->CloseUI();
+        RemoveState(state);
+    };
+
+    auto revertToLambda = [=]()
+    {
+        // show the ui
+        if (!mWidget)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::ChangeToActionMenu - actionSelectedLambda - invalid widget"));
+            return;
+        }
+        mWidget->UnHideUI();
     };
 
     // not pretty but i could not find how to add the function to the event
-    // i will never use event again (outside of this project)...dynamic multicast seems the way to go
+    //  the way i see it, event are great if you dont move away from C++
+    //  i would prefer dynamic_multicast for more complex scenario
     state->OnActionSelected().AddLambda(actionSelectedLambda);
-    mControllerState = state;
+    state->OnStateResumed().AddLambda(revertToLambda);
+    state->OnCancelSelected().AddLambda(cancelLambda);
+
+    mStateStack.Add(state);
+}
+
+UControllerStateBase* ATurnBasedGamePlayerController::GetState()
+{
+    if (mStateStack.Num() <= 0)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::GetState - emtpy state"));
+        
+        // add default state
+        auto defaultState = GetDefaultState();
+        mStateStack.Add(defaultState);
+    }
+    return mStateStack.Last();
+}
+
+void ATurnBasedGamePlayerController::RemoveState(UControllerStateBase* toRemove)
+{
+    if (mStateStack.Num() <= 0)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::RemoveState - emtpy state"));
+        return;
+    }
+
+    if (!toRemove || mStateStack.Last() != toRemove)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::RemoveState - invalid state"));
+        return;
+    }
+
+    mStateStack.Pop(false);
+    
+    auto currentState = GetState(); // it does magic
+    currentState->ResumeState();
 }

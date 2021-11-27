@@ -18,9 +18,9 @@ class TURNBASEDGAME_API UControllerState_Selecting : public UControllerStateBase
 
 protected:
         FGridPosition mStartingTile;
+
     UPROPERTY()
         AGridTile* mCurrentTile;
-
     UPROPERTY()
         AGameGrid* mGrid;
 
@@ -41,10 +41,6 @@ protected:
     DECLARE_EVENT(UControllerState_Selecting, FEmptyTileSelected)
     FEmptyTileSelected OnEmtpyTileSelectEvent;
 
-    DECLARE_EVENT(UControllerState_UI, FCancelSelected)
-    FCancelSelected CancelSelectedEvent;
-    
-
 public:
     void Setup(AGridTile * startingTile, AGameGrid* grid);
 
@@ -53,7 +49,6 @@ public:
     void OnMoveLeft() override;
     void OnMoveRight() override;
     void OnAction() override;
-    void OnCancel() override;
 
     FSelectionChanged& OnTileChanged() // to subscribe to
     {
@@ -80,10 +75,7 @@ public:
         return OnEmtpyTileSelectEvent;
     }
 
-    FCancelSelected& OnCancelSelected() // to subscribe to
-    {
-        return CancelSelectedEvent;
-    }
+    void RevertToTile(AGridTile* tile);
 
 protected:
     AGridTile* GetCurrentTile() const;

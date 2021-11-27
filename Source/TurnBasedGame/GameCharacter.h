@@ -59,6 +59,9 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
         void Move(AGridTile* currentTile, const TArray<AGridTile*>& tilesToGo);
 
+    UFUNCTION(BlueprintImplementableEvent)
+        void Teleport(const AGridTile* tileToTeleportTo);
+
     UAbilitySystemComponent* GetAbilitySystemComponent() const override;
     UCharacterAttributes* GetAttributes() const;
 
