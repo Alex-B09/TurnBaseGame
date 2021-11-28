@@ -305,7 +305,15 @@ void ATurnBasedGamePlayerController::SetMovementMode()
 
 void ATurnBasedGamePlayerController::SetAttackMode()
 {
-    // with this i'm checking to see if it's better to let the ability control the state
+    // TODO - check if already in attack mode
+    auto currentState = GetState();
+
+    if (Cast<UControllerState_Attack>(currentState))
+    {
+        // this should never happen but better be safe then sorry
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetAttackMode - already in attack, nothing to do"));
+        return;
+    }
 
     UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::SetAttackMode - fct start"));
 
@@ -315,23 +323,21 @@ void ATurnBasedGamePlayerController::SetAttackMode()
         return;
     }
     
-    //auto state = NewObject<UControllerState_Attack>();
-    //state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
-    //state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
-    //                                            {
-    //                                                OnCharacterSelect.Broadcast(enemyCharacter);
-    //                                            });
-    //
-    ////state->OnTileChanged().AddLambda([=](AGridTile * tile)
-    ////                                 {
-    ////                                     // change the attack selection
-    ////                                 });
+    auto state = NewObject<UControllerState_Attack>();
+    state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
+    state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
+                                                {
+                                                    OnCharacterSelect.Broadcast(enemyCharacter);
+                                                });
 
-    //// and need cancel lambda
-    //    
-    ////state->
-    //// hide menu?
-    //mControllerState = state;
+    state->OnCancelSelected().AddLambda([=]()
+                                        {
+                                            // close ability
+                                            OnCancelled.Broadcast(); // this will cancel the ability
+                                            RemoveState(state);
+                                        });
+    
+    mStateStack.Add(state);
 }
 
 UControllerStateBase* ATurnBasedGamePlayerController::GetDefaultState()

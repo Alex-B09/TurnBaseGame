@@ -219,6 +219,17 @@ void UGameplaySubsystem::HighlighGridForAttack(AGameCharacter* character) const
     }
 }
 
+void UGameplaySubsystem::HideGridForAttack(AGameCharacter* character) const
+{
+    // get the tiles
+    auto tiles = mGrid->GetTiles(GetTile(character), 1);
+
+    for (auto tile : tiles)
+    {
+        tile->RemoveLastState();
+    }
+}
+
 
 void UGameplaySubsystem::HideGridHighlight() const
 {

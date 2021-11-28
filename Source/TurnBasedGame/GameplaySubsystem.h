@@ -87,6 +87,9 @@ public:
 
     UFUNCTION(BlueprintCallable)
         void HideGridHighlight() const;
+    
+    UFUNCTION(BlueprintCallable)
+        void HideGridForAttack(AGameCharacter* character) const;
 
     UFUNCTION(BlueprintCallable)
         void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);

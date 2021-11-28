@@ -25,7 +25,7 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
         {
             // should never happen
-
+            UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::ActivateAbility - cannot commit ability - should not happen"));
             EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
             return;
         }
@@ -37,6 +37,7 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
             EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
             return;
         }
+
         mSourceCharacter = avatar;
 
         auto world = avatar->GetWorld();
@@ -71,8 +72,14 @@ void UGameAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
     Cleanup();
 
+    // hide attack
+    auto avatar = Cast<AGameCharacter>(GetAvatarActorFromActorInfo());
+    auto world = avatar->GetWorld();
+    auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
+    gameplaySubsystem->HideGridForAttack(avatar);
+
     // this seems to be important
-    // is there an "EndAbility_implementation" somewhere?
+    // is there an "EndAbility_implementation" somewhere? Haven't found one yet
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -145,9 +152,8 @@ void UGameAbility_Attack::AttackCancelled()
         return;
     }
 
-    // TODO - return to menu
-    // must need something like a stack of controller state.
-    // this is not going to be easy...
+    // TODO - check if there is a need to do something more
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 void UGameAbility_Attack::ApplyDamageEvent()
