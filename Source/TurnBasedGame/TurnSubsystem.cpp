@@ -29,6 +29,7 @@ void UTurnSubsystem::GoToNextTeamTurn()
     mIsPlayerTurn = !mIsPlayerTurn;
 
 
+    // TODO - move this to controller?
     FGameplayEventData dmgEvent;
     dmgEvent.EventTag = UGameplayTagsManager::Get().RequestGameplayTag(TagConst::DURATION_NEWTURN);
 
@@ -37,7 +38,9 @@ void UTurnSubsystem::GoToNextTeamTurn()
     {
         character->GetAbilitySystemComponent()->HandleGameplayEvent(dmgEvent.EventTag, &dmgEvent);
     }
-    OnNewTurn.Broadcast(mTurnNumber, mIsPlayerTurn);
+
+    EndTurnEvent.Broadcast(mIsPlayerTurn);
+    NewTurnEvent.Broadcast(mTurnNumber, mIsPlayerTurn);
 }
 
 bool UTurnSubsystem::IsCharacterAvailable(AGameCharacter * character) const
@@ -45,17 +48,17 @@ bool UTurnSubsystem::IsCharacterAvailable(AGameCharacter * character) const
     return mRemainingTeamCharacters.Contains(character);
 }
 
-void UTurnSubsystem::RemoveCharacter(AGameCharacter* character)
+void UTurnSubsystem::ProcessFinishCharacter(AGameCharacter* character)
 {
     if (!character)
     {
-        UE_LOG(LogTemp, Log, TEXT("UTurnSubsystem::RemoveCharacter - invalid character"));
+        UE_LOG(LogTemp, Log, TEXT("UTurnSubsystem::ProcessFinishCharacter - invalid character"));
         return;
     }
 
     if (!IsCharacterAvailable(character))
     {
-        UE_LOG(LogTemp, Log, TEXT("UTurnSubsystem::RemoveCharacter - character is not available"));
+        UE_LOG(LogTemp, Log, TEXT("UTurnSubsystem::ProcessFinishCharacter - character is not available"));
         return;
     }
 

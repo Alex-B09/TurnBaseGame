@@ -11,6 +11,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FChangeTurn, int, TurnNo, bool, IsPlayerTurn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartTurn, bool, IsPlayerTurn);
 
 /**
  * 
@@ -31,9 +32,13 @@ private:
 
 public:
     void GoToNextTeamTurn();
-    void RemoveCharacter(AGameCharacter* character);
+    void ProcessFinishCharacter(AGameCharacter* character);
     bool IsCharacterAvailable(AGameCharacter* character) const;
     
     UPROPERTY(BlueprintAssignable)
-        FChangeTurn OnNewTurn;
+        FStartTurn EndTurnEvent; // logic to end the turn -- this will be call before OnNewTurn and OnStartTurn
+    UPROPERTY(BlueprintAssignable) 
+        FChangeTurn NewTurnEvent; // this will be call after OnEndTurn -- this is meant for the UI
+    UPROPERTY(BlueprintCallable)
+        FStartTurn StartTurnEvent; // This will be call last and should be broadcasted from the ui when all the visual are done
 };

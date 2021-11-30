@@ -49,6 +49,7 @@ void AGameGrid::BeginPlay()
         }
     }
 
+    gameplaySubsystem->InitTurnSubsystem();
     // notify system that the game is ready to play
 
     // i could use the "UWorld::OnActorSpawn" to have a sense of when all is done...but a direct approch works better here

@@ -57,6 +57,16 @@ void ATurnBasedGamePlayerController::BeginPlay()
 
     mStateStack.Add(GetDefaultState());
     WatchCurrentTile();
+
+    auto turnSubsystem = GetWorld()->GetSubsystem<UTurnSubsystem>();
+    if (!turnSubsystem)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::BeginPlay - invalid turn subsystem"));
+        return;
+    }
+
+    turnSubsystem->EndTurnEvent.AddDynamic(this, &ATurnBasedGamePlayerController::OnEndTurn);
+    turnSubsystem->StartTurnEvent.AddDynamic(this, &ATurnBasedGamePlayerController::OnStartNewTurn);
 }
 
 void ATurnBasedGamePlayerController::PlayerTick(float DeltaTime)
@@ -536,6 +546,48 @@ void ATurnBasedGamePlayerController::FinishActionCharacter()
 
     WatchCurrentTile();
 
-    turnSubsystem->RemoveCharacter(mSelectedCharacter);
+    auto character = mSelectedCharacter;
     mSelectedCharacter = nullptr;
+    turnSubsystem->ProcessFinishCharacter(character);
+}
+
+void ATurnBasedGamePlayerController::OnEndTurn(bool isPlayerTurn)
+{
+    // disable inputs
+    DisableInput(this);
+}
+
+void ATurnBasedGamePlayerController::OnStartNewTurn(bool isPlayerTurn)
+{
+    if (isPlayerTurn)
+    {
+        EnableInput(this);
+    }
+    else
+    {
+        auto turnSubsystem = GetWorld()->GetSubsystem<UTurnSubsystem>();
+        auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
+
+        if (!turnSubsystem || !gameplaySubsystem)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnStartNewTurn - invalid subsystem"));
+            return;
+        }
+
+
+        // get all enemy character
+        auto enemyCharacters = gameplaySubsystem->GetEnemyCharacters();
+
+        // get them to play defend
+        for (auto enemy : enemyCharacters)
+        {
+            mSelectedCharacter = enemy;
+            auto tile = gameplaySubsystem->GetTile(enemy);
+            mCurrentTile->RemoveAllState();
+            mCurrentTile = tile;
+            WatchCurrentTile();
+
+            AbilityHelper::TryActivateAbilitybyHiearchicalClass<UGameAbility_Defend>(enemy->GetAbilitySystemComponent());
+        }
+    }
 }

@@ -110,4 +110,11 @@ private:
 
     UControllerStateBase* GetState();
     void RemoveState(UControllerStateBase* toRemove);
+
+    UFUNCTION()
+        void OnEndTurn(bool isPlayerTurn);
+
+    UFUNCTION()
+        void OnStartNewTurn(bool isPlayerTurn);
+
 };
