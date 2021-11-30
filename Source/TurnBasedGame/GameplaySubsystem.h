@@ -54,15 +54,13 @@ class TURNBASEDGAME_API UGameplaySubsystem : public UWorldSubsystem
 private:
     UPROPERTY()
         TArray<UCharacterGridInfo*> mCharacters;
-
     UPROPERTY()
         AGameGrid* mGrid;
-
-    // TODO - use in the near future
-    //UPROPERTY()
-    //	TArray<AGameCharacter> mPlayerCharacters;
-    //UPROPERTY()
-    //	TArray<AGameCharacter> mEnemyCharacters;
+    
+    UPROPERTY()
+    	TArray<AGameCharacter*> mPlayerCharacters;
+    UPROPERTY()
+    	TArray<AGameCharacter*> mEnemyCharacters;
 
 public:
     void SetupGrid(AGameGrid* grid);
@@ -77,6 +75,10 @@ public:
 
     // TODO remove after tests
     AGameCharacter* GetEnemyCharacter();
+
+    void InitTurnSubsystem();
+    const TArray<AGameCharacter*> GetPlayerCharacters() const;
+    const TArray<AGameCharacter*> GetEnemyCharacters() const;
 
 public:
     UFUNCTION(BlueprintCallable)

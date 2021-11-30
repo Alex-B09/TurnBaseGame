@@ -20,10 +20,23 @@ class TURNBASEDGAME_API UGameAbility_Defend : public UGameAbilityBase
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = true))
         TSubclassOf<UGameplayEffect> mDefenseEffect;
-
+    
+    UPROPERTY()
+        bool mIsVisualDone = false;
 public:
     UGameAbility_Defend();
     //void Setup(TSubclassOf<UGameplayEffect> defenseEffect);
 
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+    UFUNCTION(BlueprintImplementableEvent)
+        void HandleVisual();
+
+    UFUNCTION(BlueprintImplementableEvent)
+        void DelayEnd();
+
+
+protected:
+    UFUNCTION(BlueprintCallable)
+        void VisualDone();
 };

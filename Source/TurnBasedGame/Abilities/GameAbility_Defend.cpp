@@ -21,7 +21,6 @@ void UGameAbility_Defend::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
         {
             // should never happen
-
             EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
             return;
         }
@@ -30,6 +29,13 @@ void UGameAbility_Defend::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
         auto effect = mDefenseEffect->GetDefaultObject<UGameplayEffect>();
         ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, effect, 1, 1);
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+        HandleVisual();
     }
+}
+
+void UGameAbility_Defend::VisualDone()
+{
+    mIsVisualDone = true;
+    NotifyControllerEndAction();
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

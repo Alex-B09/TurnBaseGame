@@ -48,6 +48,11 @@ void AGameGrid::BeginPlay()
             UE_LOG(LogTemp, Log, TEXT("AGameGrid::BeginPlay -- error on character placement"));
         }
     }
+
+    // notify system that the game is ready to play
+
+    // i could use the "UWorld::OnActorSpawn" to have a sense of when all is done...but a direct approch works better here
+
 }
 
 AGridTile* AGameGrid::GetTile(FGridPosition position)

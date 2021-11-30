@@ -2,6 +2,9 @@
 
 
 #include "GameplaySubsystem.h"
+
+#include "TurnSubsystem.h"
+
 #include <Runtime/AIModule/Classes/AIController.h>
 #include <Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
 
@@ -41,6 +44,16 @@ void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass
     info->mCharacter = characterActor;
     info->mTile = tile;
     info->mIsPlayerCharacter = isPlayerControllable;
+
+    // this seems a bit overkill...but it works fine
+    if (isPlayerControllable)
+    {
+        mPlayerCharacters.Add(characterActor);
+    }
+    else
+    {
+        mEnemyCharacters.Add(characterActor);
+    }
 
     mCharacters.Add(info);
 }
@@ -263,4 +276,27 @@ AGameCharacter* UGameplaySubsystem::GetEnemyCharacter()
         }
     }
     return nullptr;
+}
+
+void UGameplaySubsystem::InitTurnSubsystem()
+{
+    // maybe remove this from here and juste let the turn subsystem initialize itself?
+    auto turnSubsystem = GetWorld()->GetSubsystem<UTurnSubsystem>();
+    if (!turnSubsystem)
+    {
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::InitTurnSubsystem - invalid turn subsystem"));
+        return;
+    }
+
+    turnSubsystem->GoToNextTeamTurn();
+}
+
+const TArray<AGameCharacter*> UGameplaySubsystem::GetPlayerCharacters() const
+{
+    return mPlayerCharacters;
+}
+
+const TArray<AGameCharacter*> UGameplaySubsystem::GetEnemyCharacters() const
+{
+    return mEnemyCharacters;
 }

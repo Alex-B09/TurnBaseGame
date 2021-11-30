@@ -18,6 +18,7 @@
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "TurnSubsystem.h"
 
 
 ATurnBasedGamePlayerController::ATurnBasedGamePlayerController()
@@ -507,4 +508,34 @@ void ATurnBasedGamePlayerController::RemoveState(UControllerStateBase* toRemove)
     
     auto currentState = GetState(); // it does magic
     currentState->ResumeState();
+}
+
+void ATurnBasedGamePlayerController::FinishActionCharacter()
+{
+    auto turnSubsystem = GetWorld()->GetSubsystem<UTurnSubsystem>();
+    auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
+
+    if (!turnSubsystem || !gameplaySubsystem)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::FinishActionCharacter - invalid subsystem"));
+        return;
+    }
+
+    if (!mSelectedCharacter)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::FinishActionCharacter - invalid character"));
+        return;
+    }
+
+    // clean states
+    mStateStack.Empty();
+    GetState(); // it does magic and initialize the first state -- horrible side effect
+    
+    auto characterTile = gameplaySubsystem->GetTile(mSelectedCharacter); // could be different from currentTile
+    characterTile->RemoveAllState();
+
+    WatchCurrentTile();
+
+    turnSubsystem->RemoveCharacter(mSelectedCharacter);
+    mSelectedCharacter = nullptr;
 }

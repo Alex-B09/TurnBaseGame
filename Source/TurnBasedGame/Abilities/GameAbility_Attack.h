@@ -46,6 +46,10 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
         void HandleVisual();
 
+    UFUNCTION(BlueprintImplementableEvent)
+        void DelayEnd();
+
+
 
     // for documentation
     //virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Abilities/GameplayAbility.h"
 #include "GameAbilityBase.generated.h"
 
@@ -15,4 +16,6 @@ class TURNBASEDGAME_API UGameAbilityBase : public UGameplayAbility
 {
     GENERATED_BODY()
 
+protected:
+    void NotifyControllerEndAction();
 };

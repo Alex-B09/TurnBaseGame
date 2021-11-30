@@ -25,7 +25,6 @@ protected:
         AGameGrid* mGrid;
 
     // events -- theorically, a singlecast and dynamiccast could work...but i want to try events 
-    // the 2 params are old and new tile
     DECLARE_EVENT_OneParam(UControllerState_Selecting, FSelectionChanged, AGridTile*)
     FSelectionChanged TileChangedEvent; 
 

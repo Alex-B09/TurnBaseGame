@@ -54,15 +54,12 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
             return;
         }
 
-
         // wait for input -- register to controller 
         controller->OnCharacterSelect.AddDynamic(this, &UGameAbility_Attack::SelectCharacter);
         controller->OnCancelled.AddDynamic(this, &UGameAbility_Attack::AttackCancelled);
 
         // set mode
         controller->SetAttackMode();
-
-        // add tag?
 
         // dont end ability here
     }
@@ -78,9 +75,19 @@ void UGameAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
     auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
     gameplaySubsystem->HideGridForAttack(avatar);
 
+    if (!bWasCancelled)
+    {
+        DelayEnd(); // just pad a bit
+    }
+
     // this seems to be important
     // is there an "EndAbility_implementation" somewhere? Haven't found one yet
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+    if (!bWasCancelled)
+    {
+        NotifyControllerEndAction();
+    }
 }
 
 bool UGameAbility_Attack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -124,12 +131,13 @@ void UGameAbility_Attack::SelectCharacter(AGameCharacter* character)
                                                                    FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, 
                                                                                                                                 &UGameAbility_Attack::HandleEvent));
     // i'm a bit confuse here.
-    //  even though the function is private (HandleEvent), Unreal sees no problem calling it... (and not even an ufunction)
+    //  even though the function is not an ufunction (HandleEvent), Unreal sees no problem calling it...the CreateUOBject is amazing
     //  but, meh...i'm learning things
     //  thanks ARPG demo
 
+
     // interesting functionnality:
-    //          if the FGameplayTagContainer is empty, it will register to all events
+    //          if the FGameplayTagContainer (first argument) is empty, it will register to all events
     mGameplayTargetEventHandle = mTargetCharacter
                                     ->GetAbilitySystemComponent()
                                     ->AddGameplayEventTagContainerDelegate(mGameplayTargetEvents,
@@ -141,18 +149,6 @@ void UGameAbility_Attack::SelectCharacter(AGameCharacter* character)
 
 void UGameAbility_Attack::AttackCancelled()
 {
-    // cancel state
-
-    auto controller = Cast<ATurnBasedGamePlayerController>(GetWorld()->GetFirstPlayerController());
-
-    if (!controller)
-    {
-        UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::TileSelected - invalid inputs"));
-        EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-        return;
-    }
-
-    // TODO - check if there is a need to do something more
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 

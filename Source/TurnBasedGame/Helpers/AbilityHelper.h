@@ -21,10 +21,10 @@ namespace AbilityHelper
         // dont know why but using IsChildOf did not work
         // i'm gonna use casting here...even though it is not the best option (performance-wise)
         auto ability = abilities.FindByPredicate([=](FGameplayAbilitySpec& ability)
-                                              {
-                                                  auto castedAbility = Cast<T>(ability.Ability);
-                                                  return castedAbility != nullptr;
-                                              });
+                                                 {
+                                                     auto castedAbility = Cast<T>(ability.Ability);
+                                                     return castedAbility != nullptr;
+                                                 });
         if (!ability)
         {
             UE_LOG(LogTemp, Log, TEXT("AbilityHelper::TryActivateAbilityFromParent - ability not found"));

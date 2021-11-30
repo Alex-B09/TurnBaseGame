@@ -16,7 +16,7 @@
 //  Dynamic multicast need the uproperty reflection system to work properly
 //  Event is the old C++14 way of doing things
 //  
-//  I have a slight preference for dynamic multicast since it plays well with BP (not tried too much event on that front though)
+//  I have a slight preference for dynamic multicast since it plays well with BP
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FControllerGridSelect, AGridTile*, Tile);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FControllerCharacterSelect, AGameCharacter*, character);
@@ -51,6 +51,7 @@ public:
     UFUNCTION(BlueprintCallable)
         void SetMovementMode();
     void SetAttackMode();
+    void FinishActionCharacter();
 
     // this exists for the "wait for" ability tasks
     UPROPERTY()
