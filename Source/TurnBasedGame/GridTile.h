@@ -13,8 +13,11 @@ enum class ETileState : uint8
 	None,
 	Selected,
 	SelectedCharacter,
+    HighlightCharacter,
 	SelectedForMovement,
+    HighlightForMovement,
 	SelectedForAttack,
+    HighlightForAttack,
 	SelectedForMagic
 };
 
@@ -47,6 +50,7 @@ public:
 
 	void SetToSpell();
 	void SetToAttack();
+    void SetToAttackHighlight();
 	void SetToMovement();
 	void SetToSelection();
 	void SetToCharacterSelected();

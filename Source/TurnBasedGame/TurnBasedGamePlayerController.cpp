@@ -314,7 +314,7 @@ void ATurnBasedGamePlayerController::SetMovementMode()
     mStateStack.Add(state);
 }
 
-void ATurnBasedGamePlayerController::SetAttackMode()
+void ATurnBasedGamePlayerController::SetAttackMode(TArray<AGridTile*> attackTiles)
 {
     // TODO - check if already in attack mode
     auto currentState = GetState();
@@ -335,7 +335,7 @@ void ATurnBasedGamePlayerController::SetAttackMode()
     }
     
     auto state = NewObject<UControllerState_Attack>();
-    state->Setup(mCurrentTile, mGrid, mGrid->GetTiles(mCurrentTile, 1));
+    state->Setup(mCurrentTile, mGrid, attackTiles);
     state->OnEnemyCharacterSelected().AddLambda([=](AGameCharacter* enemyCharacter)
                                                 {
                                                     OnCharacterSelect.Broadcast(enemyCharacter);

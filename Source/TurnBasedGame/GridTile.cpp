@@ -55,6 +55,12 @@ void AGridTile::SetToAttack()
 	BP_UpdateState();
 }
 
+void AGridTile::SetToAttackHighlight()
+{
+    mStates.Add(ETileState::HighlightForAttack);
+    BP_UpdateState();
+}
+
 void AGridTile::RemoveLastState()
 {
 	if (mStates.Num() > 0)

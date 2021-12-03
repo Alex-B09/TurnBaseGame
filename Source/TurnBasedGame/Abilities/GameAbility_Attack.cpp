@@ -5,6 +5,7 @@
 #include "../GameplaySubsystem.h"
 #include "../TurnBasedGamePlayerController.h"
 
+#include "Abilities/Tasks/AbilityTask.h"
 #include "DamageEffect.h"
 #include "../Helpers/TagsConst.h"
 #include "GameplayTagsManager.h"
@@ -43,7 +44,7 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         auto world = avatar->GetWorld();
         // get tiles
         auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-        auto tiles = gameplaySubsystem->GetAvailableAttackTiles(avatar);
+        auto tiles = gameplaySubsystem->GetAvailableAttackTiles(avatar); // at some point, the weapon should do that
         gameplaySubsystem->HighlighGridForAttack(avatar);
         // Set controller state
         auto controller = Cast<ATurnBasedGamePlayerController>(world->GetFirstPlayerController());
@@ -59,7 +60,7 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         controller->OnCancelled.AddDynamic(this, &UGameAbility_Attack::AttackCancelled);
 
         // set mode
-        controller->SetAttackMode();
+        controller->SetAttackMode(tiles);
 
         // dont end ability here
     }

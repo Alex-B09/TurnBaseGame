@@ -2,6 +2,9 @@
 
 
 #include "GameAbility_Defend.h"
+#include "../Helpers/TagsConst.h"
+#include "GameplayTagsManager.h"
+#include "AbilitySystemComponent.h"
 
 // in C++ just to test how to do it
 UGameAbility_Defend::UGameAbility_Defend()
@@ -30,6 +33,14 @@ void UGameAbility_Defend::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         auto effect = mDefenseEffect->GetDefaultObject<UGameplayEffect>();
         ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, effect, 1, 1);
         HandleVisual();
+
+        FGameplayTagContainer gameplayEventsToWaitTo;
+        gameplayEventsToWaitTo.AddTag(UGameplayTagsManager::Get().RequestGameplayTag(TagConst::DURATION_NEWTURN));
+        auto delegateHandle = CurrentActorInfo
+            ->AbilitySystemComponent
+            ->AddGameplayEventTagContainerDelegate(gameplayEventsToWaitTo,
+                                                   FGameplayEventTagMulticastDelegate::FDelegate::CreateUObject(this, &UGameAbility_Defend::EndTurnEventReceive));
+
     }
 }
 
@@ -37,5 +48,13 @@ void UGameAbility_Defend::VisualDone()
 {
     mIsVisualDone = true;
     NotifyControllerEndAction();
+}
+
+void UGameAbility_Defend::EndTurnEventReceive(FGameplayTag EventTag, const FGameplayEventData* Payload)
+{
+    UE_LOG(LogTemp, Log, TEXT("--------------------------------------------------sdsdss----------------"));
+
+    CurrentActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(mDefenseEffect, CurrentActorInfo->AbilitySystemComponent.Get());
+
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }

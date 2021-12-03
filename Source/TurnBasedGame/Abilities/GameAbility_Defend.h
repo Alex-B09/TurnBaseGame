@@ -23,6 +23,8 @@ class TURNBASEDGAME_API UGameAbility_Defend : public UGameAbilityBase
     
     UPROPERTY()
         bool mIsVisualDone = false;
+
+
 public:
     UGameAbility_Defend();
     //void Setup(TSubclassOf<UGameplayEffect> defenseEffect);
@@ -39,4 +41,6 @@ public:
 protected:
     UFUNCTION(BlueprintCallable)
         void VisualDone();
+
+    void EndTurnEventReceive(FGameplayTag EventTag, const FGameplayEventData* Payload);
 };

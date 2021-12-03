@@ -50,7 +50,7 @@ public:
 
     UFUNCTION(BlueprintCallable)
         void SetMovementMode();
-    void SetAttackMode();
+    void SetAttackMode(TArray<AGridTile*> attackTiles);
     void FinishActionCharacter();
 
     // this exists for the "wait for" ability tasks
