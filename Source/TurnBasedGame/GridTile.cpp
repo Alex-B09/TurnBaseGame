@@ -25,40 +25,34 @@ void AGridTile::BeginPlay()
 
 void AGridTile::SetToSelection()
 {
-    mStates.Add(ETileState::Selected);
-	BP_UpdateState();
+    UpdateState(ETileState::Selected);
 }
 
 void AGridTile::SetToMovement()
 {
-	mStates.Add(ETileState::SelectedForMovement);
-	BP_UpdateState();
+    UpdateState(ETileState::SelectedForMovement);
 }
 
 void AGridTile::SetToSpell()
 {
-	mStates.Add(ETileState::SelectedForMagic);
-	BP_UpdateState();
+    UpdateState(ETileState::SelectedForMagic);
 }
 
 void AGridTile::SetToCharacterSelected()
 {
 	// this is special
 	RemoveAllState();
-	mStates.Add(ETileState::SelectedCharacter);
-	BP_UpdateState();
+    UpdateState(ETileState::SelectedCharacter);
 }
 
-void AGridTile::SetToAttack()
+void AGridTile::SetToAttackSelection()
 {
-	mStates.Add(ETileState::SelectedForAttack);
-	BP_UpdateState();
+    UpdateState(ETileState::SelectedForAttack);
 }
 
 void AGridTile::SetToAttackHighlight()
 {
-    mStates.Add(ETileState::HighlightForAttack);
-    BP_UpdateState();
+    UpdateState(ETileState::HighlightForAttack);
 }
 
 void AGridTile::RemoveLastState()
@@ -84,4 +78,10 @@ ETileState AGridTile::GetState() const
 		return mStates.Last();
 	}
 	return ETileState::None;
+}
+
+void AGridTile::UpdateState(ETileState newState)
+{
+    mStates.Add(newState);
+    BP_UpdateState();
 }

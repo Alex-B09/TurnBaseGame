@@ -228,7 +228,7 @@ void UGameplaySubsystem::HighlighGridForAttack(AGameCharacter* character) const
     for (auto tile : tiles)
     {
         // TODO - add check to see if there is a character?
-        tile->SetToAttack();
+        tile->SetToAttackHighlight();
     }
 }
 

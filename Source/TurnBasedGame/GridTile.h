@@ -49,7 +49,7 @@ public:
 	//virtual void Tick(float DeltaTime) override;
 
 	void SetToSpell();
-	void SetToAttack();
+	void SetToAttackSelection();
     void SetToAttackHighlight();
 	void SetToMovement();
 	void SetToSelection();
@@ -70,4 +70,6 @@ public:
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void BP_UpdateState();
+
+    void UpdateState(ETileState newState);
 };
