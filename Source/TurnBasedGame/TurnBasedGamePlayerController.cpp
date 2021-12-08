@@ -409,7 +409,6 @@ void ATurnBasedGamePlayerController::SetAttackMode()
     // highlight tiles
     auto gridManipulator = GetGridManipulator();
     gridManipulator->HighlighTilesForAttack(attackTiles);
-    gridManipulator->SelectTileForAttack(mCurrentTile, nullptr);
 
     auto state = NewObject<UControllerState_Attack>();
     state->Setup(mCurrentTile, mGrid, attackTargets);
@@ -430,10 +429,9 @@ void ATurnBasedGamePlayerController::SetAttackMode()
 
     state->OnTileChanged().AddLambda([=](AGridTile * newTileSelection)
                                      {
-                                         if (mCurrentTile == characterTile)
+                                         if (mCurrentTile == characterTile) // should only happen on the first try
                                          {
                                              gridManipulator->SelectTileForAttack(newTileSelection, nullptr);
-
                                          }
                                          else
                                          {
@@ -658,10 +656,52 @@ void ATurnBasedGamePlayerController::OnStartNewTurn(bool isPlayerTurn)
 {
     if (isPlayerTurn)
     {
+        auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
+        auto gridManipulator = GetGridManipulator();
+
+        if (!gameplaySubsystem || !gridManipulator)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnStartNewTurn - player turn - invalid subsystem"));
+            return;
+        }
+
+        // get a character
+        auto characters = gameplaySubsystem->GetPlayerCharacters();
+        if (characters.Num() <= 0)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnStartNewTurn - no more player character"));
+            return;
+        }
+        auto character = characters[0];
+        if (!character)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnStartNewTurn - invalid character"));
+            return;
+        }
+
+        //get tile
+        auto tile = gameplaySubsystem->GetTile(character);
+        if (!tile)
+        {
+            UE_LOG(LogTemp, Log, TEXT("ATurnBasedGamePlayerController::OnStartNewTurn - invalid tile"));
+            return;
+        }
+
+        mCurrentTile = tile;
+        gridManipulator->SelectTile(mCurrentTile, nullptr);
+        WatchCurrentTile();
+        
+        mStateStack.Empty();
+        mStateStack.Add(GetDefaultState());
+        // 
+        // 
+        // look at it
         EnableInput(this);
     }
     else
     {
+        // Basic, default AI just use the defense ability
+
         auto turnSubsystem = GetWorld()->GetSubsystem<UTurnSubsystem>();
         auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
 
