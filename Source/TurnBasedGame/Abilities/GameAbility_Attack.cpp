@@ -4,11 +4,13 @@
 #include "GameAbility_Attack.h"
 #include "../GameplaySubsystem.h"
 #include "../TurnBasedGamePlayerController.h"
+#include "../GridManipulatorSubsystem.h"
 
 #include "Abilities/Tasks/AbilityTask.h"
 #include "DamageEffect.h"
 #include "../Helpers/TagsConst.h"
 #include "GameplayTagsManager.h"
+
 //#include ""
 
 // in C++ just to test how to do it
@@ -44,23 +46,19 @@ void UGameAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handl
         auto world = avatar->GetWorld();
         // get tiles
         auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-        auto tiles = gameplaySubsystem->GetAvailableAttackTiles(avatar); // at some point, the weapon should do that
-        gameplaySubsystem->HighlighGridForAttack(avatar);
-        // Set controller state
         auto controller = Cast<ATurnBasedGamePlayerController>(world->GetFirstPlayerController());
-        if (!controller)
+        if (!gameplaySubsystem || !controller)
         {
-            UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::ActivateAbility - invalid controller"));
+            UE_LOG(LogTemp, Log, TEXT("UGameAbility_Attack::ActivateAbility - invalid controller or subsystem"));
             EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
             return;
         }
 
+        //gameplaySubsystem->ChangeToAttackMode();
+
         // wait for input -- register to controller 
         controller->OnCharacterSelect.AddDynamic(this, &UGameAbility_Attack::SelectCharacter);
         controller->OnCancelled.AddDynamic(this, &UGameAbility_Attack::AttackCancelled);
-
-        // set mode
-        controller->SetAttackMode(tiles);
 
         // dont end ability here
     }
@@ -73,8 +71,9 @@ void UGameAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, co
     // hide attack
     auto avatar = Cast<AGameCharacter>(GetAvatarActorFromActorInfo());
     auto world = avatar->GetWorld();
-    auto gameplaySubsystem = world->GetSubsystem<UGameplaySubsystem>();
-    gameplaySubsystem->HideGridForAttack(avatar);
+    auto gridSubsystem = world->GetSubsystem<UGridManipulatorSubsystem>();
+    
+    gridSubsystem->RevertAttackState(); // TODO - check if this is better here or in the controller
 
     if (!bWasCancelled)
     {
@@ -98,7 +97,6 @@ bool UGameAbility_Attack::CanActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 void UGameAbility_Attack::SelectCharacter(AGameCharacter* character)
 {
-
     auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
     auto controller = Cast<ATurnBasedGamePlayerController>(GetWorld()->GetFirstPlayerController());
 
@@ -121,7 +119,7 @@ void UGameAbility_Attack::SelectCharacter(AGameCharacter* character)
     // keep it clean
     controller->OnCharacterSelect.RemoveDynamic(this, &UGameAbility_Attack::SelectCharacter);
 
-    gameplaySubsystem->HideGridHighlight();
+    //gameplaySubsystem->HideGridHighlight();
 
     auto effect = mAttackEffect->GetDefaultObject<UGameplayEffect>();
     CurrentActorInfo->AbilitySystemComponent->ApplyGameplayEffectToTarget(effect, character->GetAbilitySystemComponent(), 0.f);
@@ -203,6 +201,7 @@ void UGameAbility_Attack::Cleanup()
     if (auto controller = Cast<ATurnBasedGamePlayerController>(GetWorld()->GetFirstPlayerController()))
     {
         controller->OnCharacterSelect.RemoveDynamic(this, &UGameAbility_Attack::SelectCharacter);
+        controller->OnCancelled.RemoveDynamic(this, &UGameAbility_Attack::AttackCancelled);
     }
 
     CurrentActorInfo->AbilitySystemComponent->RemoveGameplayEventTagContainerDelegate(mGameplayEventsToWaitTo, mGameplayEventHandle);

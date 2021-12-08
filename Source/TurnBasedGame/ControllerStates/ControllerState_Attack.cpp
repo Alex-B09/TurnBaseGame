@@ -2,13 +2,12 @@
 
 
 #include "ControllerState_Attack.h"
-#include "../GameplaySubsystem.h"
 
 void UControllerState_Attack::Setup(AGridTile* startingPosition,
                                     AGameGrid* grid, 
-                                    TArray<AGridTile*> availableTiles)
+                                    TArray<FAttackTarget> availableTargets)
 {
-    if (!grid || !startingPosition || availableTiles.Num() <= 0)
+    if (!grid || !startingPosition || availableTargets.Num() <= 0)
     {
 		UE_LOG(LogTemp, Log, TEXT("UControllerState_Attack::Setup - invalid arguments"));
         return;
@@ -16,40 +15,51 @@ void UControllerState_Attack::Setup(AGridTile* startingPosition,
 
     mGrid = grid;
     mStartingTile = startingPosition;
-    mAvailableTiles = availableTiles;
+    mAttackTargets = availableTargets;
+}
+
+void UControllerState_Attack::SetupFirstTarget()
+{
+    auto firstTarget = mAttackTargets.FindByPredicate([](const FAttackTarget& target)
+                                                      {
+                                                          return target.mCharacter != nullptr;
+                                                      });
+    NotifyNewTarget(firstTarget);
 }
 
 bool UControllerState_Attack::IsValidPosition(AGridTile* tile)
 {
-    return mAvailableTiles.Contains(tile);
+    auto foundTarget = mAttackTargets.FindByPredicate([=](const FAttackTarget& target)
+                                                      {
+                                                          return target.mTile == tile;
+                                                      });
+    return foundTarget != nullptr;
 }
 
-void UControllerState_Attack::AssignNextTile(int xChanges, int yChanges)
-{
-    auto gameplaySubsystem = mStartingTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
-
-    // its a bit slow to always search in the grid...but meh
-    FGridPosition pos = mGrid->GetTilePosition(mStartingTile);
-    pos.mPosX += xChanges;
-    pos.mPosY += yChanges;
-    mCurrentTile = mGrid->GetTile(pos); // this is needed for the parent
-    
-    if (IsValidPosition(mCurrentTile) && gameplaySubsystem->GetCharacter(mCurrentTile) != nullptr)
-    {
-        TileChangedEvent.Broadcast(mCurrentTile);
-    }
-    else
-    {
-        SelectionErrorEvent.Broadcast();
-    }
-}
+//void UControllerState_Attack::AssignNextTile(int xChanges, int yChanges)
+//{
+//    auto gameplaySubsystem = mStartingTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
+//
+//    // its a bit slow to always search in the grid...but meh
+//    FGridPosition pos = mGrid->GetTilePosition(mStartingTile);
+//    pos.mPosX += xChanges;
+//    pos.mPosY += yChanges;
+//    mCurrentTile = mGrid->GetTile(pos); // this is needed for the parent
+//    
+//    if (IsValidPosition(mCurrentTile) && gameplaySubsystem->GetCharacter(mCurrentTile) != nullptr)
+//    {
+//        TileChangedEvent.Broadcast(mCurrentTile);
+//    }
+//    else
+//    {
+//        SelectionErrorEvent.Broadcast();
+//    }
+//}
 
 void UControllerState_Attack::OnAction()
 {
-    auto gameplaySubsystem = mStartingTile->GetWorld()->GetSubsystem<UGameplaySubsystem>();
-    
     //check if there is a target
-    if (auto targetCharacter = gameplaySubsystem->GetCharacter(mCurrentTile))
+    if (auto targetCharacter = mCurrentTarget.mCharacter)
     {
         OnEnemyCharacterSelected().Broadcast(targetCharacter);
     }
@@ -57,9 +67,64 @@ void UControllerState_Attack::OnAction()
     {
         OnEmptyTileSelected().Broadcast();
     }
-
-
 }
+
+void UControllerState_Attack::OnMoveUp()
+{
+    auto foundTarget = mAttackTargets.FindByPredicate([=](const FAttackTarget& target)
+                                                      {
+                                                          return target.mDirection == ETileDirection::Up;
+                                                      });
+
+    NotifyNewTarget(foundTarget);
+}
+
+
+void UControllerState_Attack::OnMoveDown()
+{
+    auto foundTarget = mAttackTargets.FindByPredicate([=](const FAttackTarget& target)
+                                                      {
+                                                          return target.mDirection == ETileDirection::Down;
+                                                      });
+
+    NotifyNewTarget(foundTarget);
+}
+
+
+void UControllerState_Attack::OnMoveLeft()
+{
+    auto foundTarget = mAttackTargets.FindByPredicate([=](const FAttackTarget& target)
+                                                      {
+                                                          return target.mDirection == ETileDirection::Left;
+                                                      });
+
+    NotifyNewTarget(foundTarget);
+}
+
+
+void UControllerState_Attack::OnMoveRight()
+{
+    auto foundTarget = mAttackTargets.FindByPredicate([=](const FAttackTarget& target)
+                                                      {
+                                                          return target.mDirection == ETileDirection::Right;
+                                                      });
+
+    NotifyNewTarget(foundTarget);
+}
+
+void UControllerState_Attack::NotifyNewTarget(FAttackTarget* target)
+{
+    if (target)
+    {
+        mCurrentTarget = *target;
+        TileChangedEvent.Broadcast(mCurrentTarget.mTile);
+    }
+    else
+    {
+        SelectionErrorEvent.Broadcast();
+    }
+}
+
 
 // TODO - there need to be something in the near future to have a better tile selection
 //        by this i mean that the state_attack should look at the available tiles, the possible target and have custom input controls

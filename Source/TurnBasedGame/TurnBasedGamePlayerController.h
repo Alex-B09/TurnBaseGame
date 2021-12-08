@@ -48,9 +48,8 @@ private:
 public:
     ATurnBasedGamePlayerController();
 
-    UFUNCTION(BlueprintCallable)
-        void SetMovementMode();
-    void SetAttackMode(TArray<AGridTile*> attackTiles);
+    void SetMovementMode(TArray<AGridTile*> movementTiles);
+    
     void FinishActionCharacter();
 
     // this exists for the "wait for" ability tasks
@@ -101,6 +100,8 @@ private:
     AGridTile* GetCurrentTile() const;
 
     UControllerStateBase* GetDefaultState();
+    void SetAttackMode();
+
     void OnCharacterSelected();
     void ProcessUIAction(FGameplayTag tag);
 
@@ -110,6 +111,8 @@ private:
 
     UControllerStateBase* GetState();
     void RemoveState(UControllerStateBase* toRemove);
+    class UGridManipulatorSubsystem* GetGridManipulator() const;
+
 
     UFUNCTION()
         void OnEndTurn(bool isPlayerTurn);

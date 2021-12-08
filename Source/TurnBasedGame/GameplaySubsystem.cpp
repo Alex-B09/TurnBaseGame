@@ -4,6 +4,7 @@
 #include "GameplaySubsystem.h"
 
 #include "TurnSubsystem.h"
+#include "GridManipulatorSubsystem.h"
 
 #include <Runtime/AIModule/Classes/AIController.h>
 #include <Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h>
@@ -18,6 +19,7 @@ void UGameplaySubsystem::SetupGrid(AGameGrid* grid)
 
     mGrid = grid;
 }
+
 
 void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable)
 {
@@ -58,6 +60,7 @@ void UGameplaySubsystem::AddCharacter(TSubclassOf<AGameCharacter> characterClass
     mCharacters.Add(info);
 }
 
+
 ETileOccupationState UGameplaySubsystem::GetTileOccupationStatus(AGridTile* tile) const
 {
     if (!tile)
@@ -78,6 +81,7 @@ ETileOccupationState UGameplaySubsystem::GetTileOccupationStatus(AGridTile* tile
     return ETileOccupationState::Empty;
 }
 
+
 UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGridTile* tile) const
 {
     if (tile == nullptr)
@@ -97,6 +101,7 @@ UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGridTile* tile) const
     return nullptr;
 }
 
+
 UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGameCharacter* character) const
 {
     if (character == nullptr)
@@ -115,6 +120,7 @@ UCharacterGridInfo* UGameplaySubsystem::GetGridInfo(AGameCharacter* character) c
 
     return nullptr;
 }
+
 
 void UGameplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo)
 {
@@ -145,6 +151,7 @@ void UGameplaySubsystem::MoveCharacter(AGameCharacter* character, AGridTile* til
     }
 }
 
+
 void UGameplaySubsystem::TeleportCharacter(AGameCharacter* character, AGridTile* tileToTeleportTo)
 {
     UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::TeleportCharacter - teleporting character"));
@@ -171,6 +178,7 @@ void UGameplaySubsystem::TeleportCharacter(AGameCharacter* character, AGridTile*
     }
 }
 
+
 AGameCharacter* UGameplaySubsystem::GetCharacter(AGridTile* tile) const
 {
     if (tile == nullptr)
@@ -186,9 +194,9 @@ AGameCharacter* UGameplaySubsystem::GetCharacter(AGridTile* tile) const
         }
     }
 
-    UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetCharacter - not found character"));
     return nullptr;
 }
+
 
 AGridTile* UGameplaySubsystem::GetTile(AGameCharacter* character) const
 {
@@ -209,60 +217,70 @@ AGridTile* UGameplaySubsystem::GetTile(AGameCharacter* character) const
 }
 
 
-void UGameplaySubsystem::HighlighGridForMovement(AGameCharacter* character) const
-{
-    // get the tiles
-    auto tiles = mGrid->GetTiles(GetTile(character), 3);
-
-    for (auto tile : tiles)
-    {
-        tile->SetToMovement();
-    }
-}
-
-void UGameplaySubsystem::HighlighGridForAttack(AGameCharacter* character) const
-{
-    // get the tiles
-    auto tiles = mGrid->GetTiles(GetTile(character), 1);
-
-    for (auto tile : tiles)
-    {
-        // TODO - add check to see if there is a character?
-        tile->SetToAttackHighlight();
-    }
-}
-
-void UGameplaySubsystem::HideGridForAttack(AGameCharacter* character) const
-{
-    // get the tiles
-    auto tiles = mGrid->GetTiles(GetTile(character), 1);
-
-    for (auto tile : tiles)
-    {
-        tile->RemoveLastState();
-    }
-}
-
-
-void UGameplaySubsystem::HideGridHighlight() const
-{
-    mGrid->HideSelectors(); // TODO - should move to subsystem?
-}
-
 TArray<AGridTile*> UGameplaySubsystem::GetAvailableMovementTiles(AGameCharacter* character)
 {
-    // TODO this need to be used in HighlighGridForCharacter
+    if (!character)
+    {
+        UE_LOG(LogTemp, Log, TEXT("UGamplaySubsystem::GetAvailableMovementTiles - invalid character"));
+        return {};
+    }
+
     auto tile = GetTile(character);
-    auto availableTiles = mGrid->GetTiles(tile, 3); // replace the 3 to use the abilitySet
+    
+    // TODO - get speed (or distance or whatnot) from attributes
+    
+    auto availableTiles = mGrid->GetTiles(tile, 4); // the 4 here is temporary 
     return availableTiles;
 }
 
-TArray<AGridTile*> UGameplaySubsystem::GetAvailableAttackTiles(AGameCharacter* character)
+
+// TODO this needs to change to be provided by the weapon -- when the weapon logic will be implemented
+TArray<FAttackTarget> UGameplaySubsystem::GetAvailableAttackTarget(AGameCharacter* character)
 {
-    // TODO this need to be used in HighlighGridForAttack
     auto tile = GetTile(character);
-    auto availableTiles = mGrid->GetTiles(tile, 1); // replace the 1 to use the abilitySet -- if ever used
-    return availableTiles;
+    auto availableTiles = mGrid->GetTiles(tile, 1); // replace the 1 to use the abilitySet or weapon -- if ever used
+    
+    // remove current tile from list
+    availableTiles.Remove(tile);
+    
+
+    TArray<FAttackTarget> targets;
+
+    for (auto attackTile : availableTiles)
+    {
+        FAttackTarget target;
+        target.mCharacter = GetCharacter(attackTile);
+        target.mTile = attackTile;
+
+        auto [direction, distance] = mGrid->GetTileDirection(tile, attackTile);
+        target.mDirection = direction;
+        target.mDistance = distance;
+
+        targets.Add(target);
+    }
+
+    // reorganise by:
+    //      up, right, down, left
+
+    targets.Sort([=](const FAttackTarget& left, const FAttackTarget& right)
+                 {
+                     bool isLeftFirst = left.mDirection < right.mDirection;
+                     bool isRightFirst = left.mDirection > right.mDirection;
+                     bool isLeftCloser = left.mDistance < right.mDistance;
+
+                     if (isLeftFirst)
+                     {
+                         return true;
+                     }
+                     if (isRightFirst)
+                     {
+                         return false;
+                     }
+
+                     return isLeftCloser;
+                 });
+
+    return targets;
 }
 
 
@@ -278,6 +296,7 @@ AGameCharacter* UGameplaySubsystem::GetEnemyCharacter()
     return nullptr;
 }
 
+
 void UGameplaySubsystem::InitTurnSubsystem()
 {
     // maybe remove this from here and juste let the turn subsystem initialize itself?
@@ -291,10 +310,12 @@ void UGameplaySubsystem::InitTurnSubsystem()
     turnSubsystem->GoToNextTeamTurn();
 }
 
+
 const TArray<AGameCharacter*> UGameplaySubsystem::GetPlayerCharacters() const
 {
     return mPlayerCharacters;
 }
+
 
 const TArray<AGameCharacter*> UGameplaySubsystem::GetEnemyCharacters() const
 {

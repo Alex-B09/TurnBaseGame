@@ -8,6 +8,7 @@
 #include "GridTile.h"
 #include "GameGrid.h"
 #include "Helpers/GridPosition.h"
+#include "TurnBasedGamePlayerController.h"
 
 #include "GameplaySubsystem.generated.h"
 
@@ -18,6 +19,7 @@ enum class ETileOccupationState : uint8
     IsCharacterPlayer,
     IsCharacterEnemy,
 };
+
 
 UCLASS()
 class UCharacterGridInfo : public UObject
@@ -34,6 +36,26 @@ public:
 
     UPROPERTY()
         bool mIsPlayerCharacter;
+};
+
+
+
+
+
+USTRUCT()
+struct FAttackTarget
+{
+    GENERATED_BODY()
+
+public: // i hate the indentation caused by the GENERATE_BODY
+    UPROPERTY()
+        AGameCharacter* mCharacter;
+
+    UPROPERTY()
+        AGridTile* mTile;
+    
+    ETileDirection mDirection;
+    int mDistance;
 };
 
 
@@ -56,7 +78,7 @@ private:
         TArray<UCharacterGridInfo*> mCharacters;
     UPROPERTY()
         AGameGrid* mGrid;
-    
+
     UPROPERTY()
     	TArray<AGameCharacter*> mPlayerCharacters;
     UPROPERTY()
@@ -67,7 +89,7 @@ public:
     void AddCharacter(TSubclassOf<AGameCharacter> characterClass, AGridTile* tile, bool isPlayerControllable);
 
     TArray<AGridTile*> GetAvailableMovementTiles(AGameCharacter* character);
-    TArray<AGridTile*> GetAvailableAttackTiles(AGameCharacter* character);
+    TArray<FAttackTarget> GetAvailableAttackTarget(AGameCharacter* character);
     
     ETileOccupationState GetTileOccupationStatus(AGridTile* tile) const;
 
@@ -76,23 +98,11 @@ public:
     // TODO remove after tests
     AGameCharacter* GetEnemyCharacter();
 
-    void InitTurnSubsystem();
+    void InitTurnSubsystem(); // TODO - this should be the world job and not this subsystem
     const TArray<AGameCharacter*> GetPlayerCharacters() const;
     const TArray<AGameCharacter*> GetEnemyCharacters() const;
 
 public:
-    UFUNCTION(BlueprintCallable)
-        void HighlighGridForMovement(AGameCharacter* character) const;
-
-    UFUNCTION(BlueprintCallable)
-        void HighlighGridForAttack(AGameCharacter* character) const;
-
-    UFUNCTION(BlueprintCallable)
-        void HideGridHighlight() const;
-    
-    UFUNCTION(BlueprintCallable)
-        void HideGridForAttack(AGameCharacter* character) const;
-
     UFUNCTION(BlueprintCallable)
         void MoveCharacter(AGameCharacter* character, AGridTile* tileToMoveTo);
 

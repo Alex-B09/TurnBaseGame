@@ -26,6 +26,16 @@ struct FStartinPosition
         TSubclassOf<AGameCharacter> mCharacter;
 };
 
+UENUM()
+enum class ETileDirection : uint8
+{
+    Up,
+    Left,
+    Down,
+    Right,
+    None
+};
+
 
 UCLASS()
 class TURNBASEDGAME_API AGameGrid : public AActor
@@ -59,9 +69,13 @@ public:
     int GetWidth() const { return mNbWidth; }
     int GetDepth() const { return mNbDepth; }
 
-    void HideSelectors();
+    
 
     TArray<AGridTile*> GetTiles(AGridTile* centerTile, int distanceFromTile);
+    TArray<AGridTile*> GetTiles() const;
+
+    std::pair<ETileDirection, int> GetTileDirection(AGridTile* source, AGridTile* target);
+
 
 
 protected:

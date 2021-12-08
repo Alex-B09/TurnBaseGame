@@ -35,6 +35,8 @@ public:
     void ProcessFinishCharacter(AGameCharacter* character);
     bool IsCharacterAvailable(AGameCharacter* character) const;
     
+
+    // TODO change those names...they are terrible
     UPROPERTY(BlueprintAssignable)
         FStartTurn EndTurnEvent; // logic to end the turn -- this will be call before OnNewTurn and OnStartTurn
     UPROPERTY(BlueprintAssignable) 

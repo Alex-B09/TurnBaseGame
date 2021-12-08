@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ControllerState_Selecting.h"
 #include "../GridTile.h"
+#include "../GameplaySubsystem.h"
 #include "ControllerState_Attack.generated.h"
 
 /**
@@ -15,17 +16,28 @@ class TURNBASEDGAME_API UControllerState_Attack : public UControllerState_Select
 {
     GENERATED_BODY()
         
-    UPROPERTY()
-        TArray<AGridTile*> mAvailableTiles; // list of available movement tiles
+    
+    TArray<FAttackTarget> mAttackTargets; // list of available movement tiles
+    FAttackTarget mCurrentTarget;
+    
     UPROPERTY()
         AGridTile* mStartingTile;
+
+
 public:
     void Setup(AGridTile * startingPosition, 
                AGameGrid* grid,
-               TArray<AGridTile*> availableTiles);
+               TArray<FAttackTarget> availableTargets);
 
+    void SetupFirstTarget();
+
+    void OnMoveUp() override;
+    void OnMoveDown() override;
+    void OnMoveLeft() override;
+    void OnMoveRight() override;
     void OnAction() override;
 private:
     bool IsValidPosition(AGridTile* tile) override;
-    void AssignNextTile(int xChanges, int yChanges) override;
+    //void AssignNextTile(int xChanges, int yChanges) override;
+    void NotifyNewTarget(FAttackTarget* target);
 };

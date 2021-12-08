@@ -2,7 +2,9 @@
 
 
 #include "GameGrid.h"
-#include <TurnBasedGame/GameplaySubsystem.h>
+
+#include "GameplaySubsystem.h"
+#include "GridManipulatorSubsystem.h"
 
 // Sets default values
 AGameGrid::AGameGrid()
@@ -31,9 +33,10 @@ void AGameGrid::BeginPlay()
     }
 
     auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
-    if (gameplaySubsystem == nullptr)
+    auto gridSubsystem = GetWorld()->GetSubsystem<UGridManipulatorSubsystem>();
+    if (!gameplaySubsystem || !gridSubsystem)
     {
-        UE_LOG(LogTemp, Log, TEXT("AGameGrid::BeginPlay -- invalid gameplaySubsystem"));
+        UE_LOG(LogTemp, Log, TEXT("AGameGrid::BeginPlay -- invalid subsystem"));
         return;
     }
 
@@ -49,11 +52,8 @@ void AGameGrid::BeginPlay()
         }
     }
 
+    gridSubsystem->SetGrid(this);
     gameplaySubsystem->InitTurnSubsystem();
-    // notify system that the game is ready to play
-
-    // i could use the "UWorld::OnActorSpawn" to have a sense of when all is done...but a direct approch works better here
-
 }
 
 AGridTile* AGameGrid::GetTile(FGridPosition position)
@@ -76,17 +76,6 @@ FGridPosition AGameGrid::GetTilePosition(AGridTile* tile)
     auto [x, y] = GetXYPosition(index); // need C++17 to work -- check TurnBasedGame.Build.cs
 
     return FGridPosition{ x,y };
-}
-
-void AGameGrid::HideSelectors()
-{
-    for (auto tile : mTiles)
-    {
-        // the selectors should be the last state
-        // this will be a bit problematic in the future
-        // having a predetermined function to remove the selector should be the way to go
-        tile->RemoveLastState(); 
-    }
 }
 
 std::pair<int, int> AGameGrid::GetXYPosition(int arrayPos)
@@ -121,4 +110,47 @@ TArray<AGridTile*> AGameGrid::GetTiles(AGridTile* centerTile, int distanceFromTi
     }
 
     return tiles;
+}
+
+
+TArray<AGridTile*> AGameGrid::GetTiles() const
+{
+    return mTiles;
+}
+
+
+std::pair<ETileDirection, int> AGameGrid::GetTileDirection(AGridTile* source, AGridTile* target)
+{
+    auto sourcePosition = GetTilePosition(source);
+    auto targetPosition = GetTilePosition(target);
+
+    ETileDirection direction = ETileDirection::None;
+
+    // if it is up, y-source is lower then y-target
+    if (sourcePosition.mPosY < targetPosition.mPosY)
+    {
+        direction = ETileDirection::Up;
+    }
+    
+    if (sourcePosition.mPosY > targetPosition.mPosY)
+    {
+        direction = ETileDirection::Down;
+    }
+
+    // if it is right, x-source is lower then x-target
+    if (sourcePosition.mPosX < targetPosition.mPosX)
+    {
+        direction = ETileDirection::Right;
+    }
+
+    if (sourcePosition.mPosX > targetPosition.mPosX)
+    {
+        direction = ETileDirection::Left;
+    }
+
+    int distance = FMath::Abs(sourcePosition.mPosX - targetPosition.mPosX) 
+                 + FMath::Abs(sourcePosition.mPosY - targetPosition.mPosY);
+
+
+    return std::pair<ETileDirection, int>(direction, distance);
 }

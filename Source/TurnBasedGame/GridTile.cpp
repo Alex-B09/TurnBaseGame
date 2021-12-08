@@ -28,7 +28,7 @@ void AGridTile::SetToSelection()
     UpdateState(ETileState::Selected);
 }
 
-void AGridTile::SetToMovement()
+void AGridTile::SetToMovementHighlight()
 {
     UpdateState(ETileState::SelectedForMovement);
 }

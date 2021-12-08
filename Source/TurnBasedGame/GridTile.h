@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+
 #include "GameFramework/Actor.h"
 #include "Components/SceneComponent.h"
+
 #include "GridTile.generated.h"
 
 UENUM(BlueprintType)
@@ -48,27 +51,29 @@ public:
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
 
-	void SetToSpell();
-	void SetToAttackSelection();
-    void SetToAttackHighlight();
-	void SetToMovement();
+    void SetToMovementHighlight();
 	void SetToSelection();
+	
+    void SetToAttackSelection();
+    void SetToAttackHighlight();
+
+	void SetToSpell();
 	void SetToCharacterSelected();
 
 	void RemoveLastState();
 	void RemoveAllState();
 
-    UFUNCTION(BlueprintCallable)
-	FTransform GetCharacterPosition() const
-	{
-		return mCharacterPosition->GetComponentTransform();
-	}
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+	    FTransform GetCharacterPosition() const
+	    {
+		    return mCharacterPosition->GetComponentTransform();
+	    }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		ETileState GetState() const;
 	
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "UpdateState"))
 		void BP_UpdateState();
 
     void UpdateState(ETileState newState);
