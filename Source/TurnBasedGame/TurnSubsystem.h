@@ -40,7 +40,7 @@ public:
     UPROPERTY(BlueprintAssignable)
         FStartTurn EndTurnEvent; // logic to end the turn -- this will be call before OnNewTurn and OnStartTurn
     UPROPERTY(BlueprintAssignable) 
-        FChangeTurn NewTurnEvent; // this will be call after OnEndTurn -- this is meant for the UI
+        FChangeTurn BeforeStartTurnEvent; // this will be call after OnEndTurn -- this is meant for the UI and do visual stuff
     UPROPERTY(BlueprintCallable)
         FStartTurn StartTurnEvent; // This will be call last and should be broadcasted from the ui when all the visual are done
 };

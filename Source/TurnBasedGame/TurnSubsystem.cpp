@@ -40,7 +40,7 @@ void UTurnSubsystem::GoToNextTeamTurn()
     }
 
     EndTurnEvent.Broadcast(mIsPlayerTurn);
-    NewTurnEvent.Broadcast(mTurnNumber, mIsPlayerTurn);
+    BeforeStartTurnEvent.Broadcast(mTurnNumber, mIsPlayerTurn);
 }
 
 bool UTurnSubsystem::IsCharacterAvailable(AGameCharacter * character) const
