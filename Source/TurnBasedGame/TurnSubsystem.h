@@ -43,4 +43,8 @@ public:
         FChangeTurn BeforeStartTurnEvent; // this will be call after OnEndTurn -- this is meant for the UI and do visual stuff
     UPROPERTY(BlueprintCallable)
         FStartTurn StartTurnEvent; // This will be call last and should be broadcasted from the ui when all the visual are done
+
+
+private:
+    void SendNewTurnEventToCharacters();
 };

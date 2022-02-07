@@ -10,6 +10,8 @@
 
 void UTurnSubsystem::GoToNextTeamTurn()
 {
+    UE_LOG(LogTemp, Log, TEXT("UTurnSubsystem::GoToNextTeamTurn - NEW TURN!!!"));
+
     auto gameplaySubsystem = GetWorld()->GetSubsystem<UGameplaySubsystem>();
     if (!gameplaySubsystem)
     {
@@ -17,36 +19,30 @@ void UTurnSubsystem::GoToNextTeamTurn()
         return;
     }
 
+    mIsPlayerTurn = !mIsPlayerTurn;
+
     if (mIsPlayerTurn)
-    {
-        mRemainingTeamCharacters = gameplaySubsystem->GetEnemyCharacters();
-    }
-    else
     {
         ++mTurnNumber;
         mRemainingTeamCharacters = gameplaySubsystem->GetPlayerCharacters();
     }
-    mIsPlayerTurn = !mIsPlayerTurn;
-
-
-    // TODO - move this to controller?
-    FGameplayEventData dmgEvent;
-    dmgEvent.EventTag = UGameplayTagsManager::Get().RequestGameplayTag(TagConst::DURATION_NEWTURN);
-
-    // send to the target the event to complete the cycle of ability that ends at the begenning of the new turn
-    for (auto character : mRemainingTeamCharacters)
+    else
     {
-        character->GetAbilitySystemComponent()->HandleGameplayEvent(dmgEvent.EventTag, &dmgEvent);
+        mRemainingTeamCharacters = gameplaySubsystem->GetEnemyCharacters();
     }
+
+    SendNewTurnEventToCharacters();
 
     EndTurnEvent.Broadcast(mIsPlayerTurn);
     BeforeStartTurnEvent.Broadcast(mTurnNumber, mIsPlayerTurn);
 }
 
+
 bool UTurnSubsystem::IsCharacterAvailable(AGameCharacter * character) const
 {
     return mRemainingTeamCharacters.Contains(character);
 }
+
 
 void UTurnSubsystem::ProcessFinishCharacter(AGameCharacter* character)
 {
@@ -66,7 +62,21 @@ void UTurnSubsystem::ProcessFinishCharacter(AGameCharacter* character)
 
     if (mRemainingTeamCharacters.Num() <= 0)
     {
-        GoToNextTeamTurn();
+        // set for next tick to clean up the callstack
+        GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UTurnSubsystem::GoToNextTeamTurn);
     }
 }
 
+
+void UTurnSubsystem::SendNewTurnEventToCharacters()
+{
+    FGameplayEventData endTurnEvent;
+    endTurnEvent.EventTag = UGameplayTagsManager::Get().RequestGameplayTag(TagConst::DURATION_NEWTURN);
+
+    // send to the target the event to complete the cycle of ability that ends at the beginning of the new turn
+    for (auto character : mRemainingTeamCharacters)
+    {
+        // This could potentially cancels langering effects that needs to be disabled at the beginning of the player's turn
+        character->GetAbilitySystemComponent()->HandleGameplayEvent(endTurnEvent.EventTag, &endTurnEvent);
+    }
+}
