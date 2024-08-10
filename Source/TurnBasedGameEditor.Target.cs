@@ -8,7 +8,8 @@ public class TurnBasedGameEditorTarget : TargetRules
 	public TurnBasedGameEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("TurnBasedGame");
+		DefaultBuildSettings = BuildSettingsVersion.V5;
+
+        ExtraModuleNames.Add("TurnBasedGame");
 	}
 }
